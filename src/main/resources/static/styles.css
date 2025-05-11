@@ -1,0 +1,353 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(to right, #f8f9fa, #e8f5e9);
+    display: flex;
+    margin: 0;
+}
+
+
+
+.sidebar {
+    width: 220px;
+    background: #1f1f1f;
+    color: rgb(255, 255, 255);
+    padding: 20px;
+    height: 100vh;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    margin: 10px 0;
+}
+
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #ccc;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s;
+    gap: 10px;
+}
+
+.sidebar ul li a:hover {
+    background: #333;
+    color: white;
+    border-left: 4px solid #0d6efd;
+}
+
+.sidebar ul li a.active {
+    background: #333;
+    color: white;
+    border-left: 4px solid #0d6efd;
+}
+
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo-icon {
+    font-size: 3rem;
+    margin-bottom: 5px;
+}
+
+.app-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #4CAF50;
+    /* Verde representativo */
+    font-family: 'Inter', sans-serif;
+}
+
+.welcome-card {
+    animation: fadeIn 1s ease-in;
+    background-color: #f4f6f8;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin: 80px auto;
+    font-family: 'Inter', sans-serif;
+}
+
+.welcome-card .icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+    color: #4CAF50;
+}
+
+.welcome-card h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.welcome-card p {
+    font-size: 1.1rem;
+    color: #555;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.content {
+    flex: 1;
+    padding: 40px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        text-align: center;
+    }
+
+    .sidebar ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .content {
+        padding: 10px;
+    }
+
+    .clientes-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .clientes-table th,
+    .clientes-table td {
+        white-space: nowrap;
+    }
+}
+
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    transition: opacity 0.3s ease-in-out;
+    z-index: 1050;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 400px;
+    max-width: 90%;
+    text-align: center;
+    z-index: 1060
+}
+
+.cerrar-modal {
+    font-size: 40px;
+    float: right;
+    cursor: pointer;
+    top: 15px;
+    right: 20px;
+    color: #333;
+    background: none;
+    border: none;
+    transition: color 0.3s ease-in-out;
+}
+
+.cerrar-modal:hover {
+    color: #ff0000;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.tabla-productos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 16px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.tabla-productos th,
+.tabla-productos td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.tabla-productos th {
+    padding: 12px;
+    text-align: left;
+}
+
+.tabla-productos tr {
+    transition: background-color 0.2s ease-in-out;
+}
+
+
+.tabla-productos tr:hover {
+    background: #f4f4f4;
+}
+
+.tabla-contenedor {
+    max-height: 400px;
+    /* Altura fija */
+    overflow-y: auto;
+    /* Scroll solo vertical */
+    border: 1px solid #ddd;
+    padding: 5px;
+    position: relative;
+    /* Necesario para el z-index */
+    z-index: 1000;
+    /* Asegura que el contenedor esté por encima de otros elementos */
+}
+
+/* Mantener encabezados fijos */
+.tabla-productos thead {
+    position: sticky;
+    top: 0;
+    background: #f1f5f9;
+    /* gris claro moderno */
+    color: #1e293b;
+    /* texto gris oscuro */
+    z-index: 1000;
+}
+
+/* Contenedor de botones */
+.acciones {
+    display: flex;
+    gap: 10px;
+}
+
+/* Ajusta los botones en general */
+button,
+.btn-agregar,
+.btn-guardar,
+.btn-editar,
+.btn-eliminar {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para botones */
+.btn-editar {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn-editar:hover {
+    background-color: #218838;
+}
+
+.btn-eliminar {
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn-eliminar:hover {
+    background-color: #c82333;
+}
+
+.btn-agregar {
+    background-color: #2563eb;
+    color: white;
+    font-size: 16px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+    display: block;
+    margin: 20px auto;
+    /* Centrado */
+}
+
+.btn-agregar:hover {
+    background-color: #1d4ed8;
+    transform: scale(1.05);
+    /* Efecto de aumento */
+}
+
+.btn-guardar {
+    padding: 12px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn-guardar:hover {
+    background-color: #0056b3;
+}
+
+.logo-icon i {
+    font-size: 2.5rem;
+    color: #4CAF50;
+    /* color verde SmartMarket */
+    display: block;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
