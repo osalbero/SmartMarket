@@ -14,7 +14,7 @@ public class Producto {
     @Column(name = "id_producto")
     private Integer id;
 
-    @Column(name = "sku", nullable = false, length = 100)
+    @Column(name = "sku", unique = true, nullable = false, length = 100)
     private String sku;
 
     @Column(name = "nombre_producto", nullable = false, length = 100)

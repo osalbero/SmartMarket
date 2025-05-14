@@ -47,6 +47,11 @@ public class ProductoService {
             throw new RuntimeException("La categoría'" + producto.getCategoria().getNombre() + "' no existe.");
         }
 
+        // Verificar si el SKU ya existe
+        if (productoRepository.findBySku(producto.getSku()).isPresent()) {
+            throw new RuntimeException("Ya existe un producto con el SKU: " + producto.getSku());
+        }
+
         producto.setCategoria(categoria.get()); // Asignar la categoría existente al producto
         producto.setNombreCategoria(categoria.get().getNombre()); // Asignar el nombre de la categoría al producto
         return productoRepository.save(producto);

@@ -289,38 +289,79 @@ async function cargarCategorias(seleccionada = "") {
 
 
 
+// Función asíncrona para guardar un producto (nuevo o editado)
 async function guardarProducto(e) {
-    e.preventDefault();
+    e.preventDefault(); // Evita que el formulario recargue la página
 
-    const sku = document.getElementById("sku").value; // SKU del producto
-    const creando = !document.getElementById("sku").readOnly || !sku; // Verifica si es un nuevo producto
+    // Obtener el SKU ingresado por el usuario
+    const sku = document.getElementById("sku").value.trim();
+
+    // Verifica si se está creando un producto (el campo SKU no es solo lectura o está vacío)
+    const creando = !document.getElementById("sku").readOnly || !sku;
+
+    // Validación básica: campo SKU no debe estar vacío
+    if (!sku) {
+        Swal.fire("Advertencia", "El campo SKU es obligatorio", "warning");
+        return;
+    }
+
+    // Si se está creando un nuevo producto, validar que el SKU no esté repetido en el backend
+    if (creando) {
+        try {
+            const respuesta = await fetch(`http://localhost:8080/api/productos/sku/${sku}`);
+            if (respuesta.ok) {
+                const productoExistente = await respuesta.json();
+                if (productoExistente) {
+                    Swal.fire("Error", `Ya existe un producto con el SKU "${sku}"`, "error");
+                    return; // Evita continuar con el guardado
+                }
+            }
+        } catch (error) {
+            console.error("Error al validar el SKU:", error);
+            Swal.fire("Error", "No se pudo validar el SKU", "error");
+            return;
+        }
+    }
+
+    // Construye el objeto producto con los datos del formulario
     const producto = {
         sku: sku,
         nombre: document.getElementById("nombre").value,
         descripcion: document.getElementById("descripcion").value,
         codigoDeBarras: document.getElementById("codigoDeBarras").value,
-        categoria: { nombre: document.getElementById("categoria").value }
+        categoria: {
+            nombre: document.getElementById("categoria").value
+        }
     };
 
+    // Determina si se usa POST (crear) o PUT (editar)
     const metodo = creando ? "POST" : "PUT";
     const url = creando
         ? "http://localhost:8080/api/productos"
         : `http://localhost:8080/api/productos/sku/${sku}`;
 
-    const res = await fetch(url, {
-        method: metodo,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(producto)
-    });
+    // Enviar la petición al backend con los datos del producto
+    try {
+        const res = await fetch(url, {
+            method: metodo,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(producto)
+        });
 
-    if (res.ok) {
-        Swal.fire("Éxito", "Producto guardado correctamente", "success");
-        cerrarModal();
-        cargarProductos();
-    } else {
-        Swal.fire("Error", "No se pudo guardar el producto", "error");
+        // Mostrar alertas según el resultado
+        if (res.ok) {
+            Swal.fire("Éxito", "Producto guardado correctamente", "success");
+            cerrarModal();      // Cierra el modal de registro/edición
+            cargarProductos();  // Recarga la lista de productos
+        } else {
+            Swal.fire("Error", "No se pudo guardar el producto", "error");
+        }
+    } catch (error) {
+        console.error("Error al guardar el producto:", error);
+        Swal.fire("Error", "Ocurrió un error al guardar el producto", "error");
     }
 }
+
 
 async function eliminarProducto(sku) {
     const confirmacion = await Swal.fire({
