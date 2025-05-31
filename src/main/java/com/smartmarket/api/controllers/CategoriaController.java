@@ -2,10 +2,13 @@ package com.smartmarket.api.controllers;
 
 import com.smartmarket.api.models.Categoria;
 import com.smartmarket.api.services.CategoriaService;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -54,8 +57,18 @@ public class CategoriaController {
 
     // Actualizar una categoría por ID
     @PutMapping("/{id}")
-    public ResponseEntity<Categoria> actualizarCategoria(@PathVariable Integer id, @RequestBody Categoria categoria) {
-        Categoria categoriaActualizada = categoriaService.actualizarCategoria(id, categoria);
-        return ResponseEntity.ok(categoriaActualizada);
+    public ResponseEntity<?> actualizarCategoria(@PathVariable Integer id, @RequestBody Categoria categoria) {
+        // Verificar si el nombre ya existe en otra categoría
+        Optional<Categoria> existente = categoriaService.buscarPorNombre(categoria.getNombre());
+
+        if (existente.isPresent() && !existente.get().getId().equals(id)) {
+            // Ya existe otra categoría con el mismo nombre
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", "Ya existe una categoría " + categoria.getNombre()));
+        }
+
+        Categoria actualizada = categoriaService.actualizarCategoria(id, categoria);
+        return ResponseEntity.ok(actualizada);
     }
+
 }

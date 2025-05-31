@@ -24,10 +24,15 @@ public class CategoriaService {
         }
         return categoriaRepository.saveAll(categorias);
     }
-    
+
     // Obtener todas las categorías
     public List<Categoria> obtenerTodas() {
         return categoriaRepository.findAll();
+    }
+
+    // Buscar por nombre
+    public Optional<Categoria> buscarPorNombre(String nombre) {
+        return categoriaRepository.findByNombreIgnoreCase(nombre);
     }
 
     // Buscar una categoría por ID

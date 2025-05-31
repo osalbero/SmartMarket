@@ -7,6 +7,7 @@ import com.smartmarket.api.repositories.IProductoRepository;
 import com.smartmarket.api.repositories.ICategoriaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,6 +48,11 @@ public class ProductoService {
             throw new RuntimeException("La categoría'" + producto.getCategoria().getNombre() + "' no existe.");
         }
 
+        // Generar SKU automáticamente si no se proporciona
+        if (producto.getSku() == null || producto.getSku().isBlank()) {
+            producto.setSku(generarSkuUnico());
+        }
+
         // Verificar si el SKU ya existe
         if (productoRepository.findBySku(producto.getSku()).isPresent()) {
             throw new RuntimeException("Ya existe un producto con el SKU: " + producto.getSku());
@@ -79,31 +85,31 @@ public class ProductoService {
 
     // Usar este metodo para flujos donde el SKU ens la clave principal
     public Producto actualizarProductoPorSku(String sku, Producto productoActualizado) {
-    return productoRepository.findBySku(sku)
-            .map(producto -> {
-                String nombreCategoria = productoActualizado.getCategoria().getNombre();
+        return productoRepository.findBySku(sku)
+                .map(producto -> {
+                    String nombreCategoria = productoActualizado.getCategoria().getNombre();
 
-                // Buscar si la categoría ya existe
-                Categoria categoria = categoriaRepository.findByNombre(nombreCategoria)
-                        .orElseGet(() -> {
-                            // Si no existe, crear una nueva categoría
-                            Categoria nuevaCategoria = new Categoria();
-                            nuevaCategoria.setNombre(nombreCategoria);
-                            return categoriaRepository.save(nuevaCategoria);
-                        });
+                    // Buscar si la categoría ya existe
+                    Categoria categoria = categoriaRepository.findByNombre(nombreCategoria)
+                            .orElseGet(() -> {
+                                // Si no existe, crear una nueva categoría
+                                Categoria nuevaCategoria = new Categoria();
+                                nuevaCategoria.setNombre(nombreCategoria);
+                                return categoriaRepository.save(nuevaCategoria);
+                            });
 
-                // Asignar la categoría al producto
-                producto.setCategoria(categoria);
-                producto.setNombreCategoria(categoria.getNombre()); // Si usas nombreCategoria como campo
+                    // Asignar la categoría al producto
+                    producto.setCategoria(categoria);
+                    producto.setNombreCategoria(categoria.getNombre()); // Si usas nombreCategoria como campo
 
-                // Actualizar otros datos del producto
-                producto.setNombre(productoActualizado.getNombre());
-                producto.setDescripcion(productoActualizado.getDescripcion());
-                producto.setCodigoDeBarras(productoActualizado.getCodigoDeBarras());
+                    // Actualizar otros datos del producto
+                    producto.setNombre(productoActualizado.getNombre());
+                    producto.setDescripcion(productoActualizado.getDescripcion());
+                    producto.setCodigoDeBarras(productoActualizado.getCodigoDeBarras());
 
-                return productoRepository.save(producto);
-            })
-            .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+                    return productoRepository.save(producto);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
     }
 
     // Usar este método solo si el flujo trabaja con ID de producto
@@ -135,5 +141,24 @@ public class ProductoService {
             throw new IllegalArgumentException("El producto no existe");
         }
         productoRepository.deleteById(id);
+    }
+
+    // Método privado para generar un SKU único
+    private String generarSkuUnico() {
+        String sku;
+        do {
+            sku = generarSku();
+        } while (productoRepository.existsBySku(sku));
+        return sku;
+    }
+
+    // Generador base: PRD + AÑO + MES + 3 dígitos aleatorios
+    private String generarSku() {
+        LocalDate ahora = LocalDate.now();
+        int AÑO = ahora.getYear();
+        int MES = ahora.getMonthValue();
+
+        int aleatorio = (int) (Math.random() * 900) + 100; // Genera un número aleatorio de 3 dígitos
+        return "PRD" + AÑO + String.format("%02d", MES) + aleatorio;
     }
 }

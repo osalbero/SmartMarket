@@ -1,3 +1,4 @@
+/* ---------- ESTILOS GENERALES ---------- */
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(to right, #f8f9fa, #e8f5e9);
@@ -5,16 +6,37 @@ body {
     margin: 0;
 }
 
+h1 {
+    text-align: center;
+}
 
-
+/* ---------- SIDEBAR ---------- */
 .sidebar {
     width: 220px;
     background: #1f1f1f;
-    color: rgb(255, 255, 255);
+    color: white;
     padding: 20px;
     height: 100vh;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
     font-family: 'Segoe UI', sans-serif;
+}
+
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo-icon {
+    font-size: 3rem;
+    margin-bottom: 5px;
+    color: #4CAF50;
+    text-align: center;
+}
+
+.app-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #4CAF50;
 }
 
 .sidebar ul {
@@ -37,36 +59,22 @@ body {
     gap: 10px;
 }
 
-.sidebar ul li a:hover {
-    background: #333;
-    color: white;
-    border-left: 4px solid #0d6efd;
-}
-
+.sidebar ul li a:hover,
 .sidebar ul li a.active {
     background: #333;
     color: white;
     border-left: 4px solid #0d6efd;
 }
 
-.sidebar-header {
-    text-align: center;
-    margin-bottom: 20px;
+/* ---------- CONTENIDO PRINCIPAL ---------- */
+.content {
+    flex: 1;
+    padding: 40px;
+    max-width: 1200px;
+    margin: auto;
 }
 
-.logo-icon {
-    font-size: 3rem;
-    margin-bottom: 5px;
-}
-
-.app-name {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #4CAF50;
-    /* Verde representativo */
-    font-family: 'Inter', sans-serif;
-}
-
+/* ---------- BIENVENIDA ---------- */
 .welcome-card {
     animation: fadeIn 1s ease-in;
     background-color: #f4f6f8;
@@ -76,7 +84,6 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     max-width: 600px;
     margin: 80px auto;
-    font-family: 'Inter', sans-serif;
 }
 
 .welcome-card .icon {
@@ -100,51 +107,7 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-.content {
-    flex: 1;
-    padding: 40px;
-    max-width: 1200px;
-    margin: auto;
-}
-
-h1 {
-    text-align: center;
-}
-
-/* Ajuste para pantallas pequeñas */
-@media (max-width: 768px) {
-    body {
-        flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: auto;
-        text-align: center;
-    }
-
-    .sidebar ul {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    .content {
-        padding: 10px;
-    }
-
-    .clientes-table {
-        display: block;
-        overflow-x: auto;
-    }
-
-    .clientes-table th,
-    .clientes-table td {
-        white-space: nowrap;
-    }
-}
-
+/* ---------- MODALES ---------- */
 .modal {
     display: flex;
     justify-content: center;
@@ -171,7 +134,7 @@ h1 {
     width: 400px;
     max-width: 90%;
     text-align: center;
-    z-index: 1060
+    z-index: 1060;
 }
 
 .cerrar-modal {
@@ -190,6 +153,7 @@ h1 {
     color: #ff0000;
 }
 
+/* ---------- FORMULARIOS ---------- */
 .form-group {
     margin-bottom: 15px;
     text-align: left;
@@ -209,7 +173,8 @@ h1 {
     border-radius: 5px;
 }
 
-.tabla-productos {
+/* ---------- TABLAS REUTILIZABLES ---------- */
+.tabla-generica {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
@@ -219,58 +184,39 @@ h1 {
     overflow: hidden;
 }
 
-.tabla-productos th,
-.tabla-productos td {
+.tabla-generica th,
+.tabla-generica td {
     padding: 12px;
     border-bottom: 1px solid #ddd;
     text-align: left;
 }
 
-.tabla-productos th {
-    padding: 12px;
-    text-align: left;
-}
-
-.tabla-productos tr {
+.tabla-generica tr {
     transition: background-color 0.2s ease-in-out;
 }
 
-
-.tabla-productos tr:hover {
+.tabla-generica tr:hover {
     background: #f4f4f4;
 }
 
 .tabla-contenedor {
     max-height: 400px;
-    /* Altura fija */
     overflow-y: auto;
-    /* Scroll solo vertical */
     border: 1px solid #ddd;
     padding: 5px;
     position: relative;
-    /* Necesario para el z-index */
     z-index: 1000;
-    /* Asegura que el contenedor esté por encima de otros elementos */
 }
 
-/* Mantener encabezados fijos */
-.tabla-productos thead {
+.tabla-generica thead {
     position: sticky;
     top: 0;
     background: #f1f5f9;
-    /* gris claro moderno */
     color: #1e293b;
-    /* texto gris oscuro */
     z-index: 1000;
 }
 
-/* Contenedor de botones */
-.acciones {
-    display: flex;
-    gap: 10px;
-}
-
-/* Ajusta los botones en general */
+/* ---------- BOTONES ---------- */
 button,
 .btn-agregar,
 .btn-guardar,
@@ -279,7 +225,44 @@ button,
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilos para botones */
+.acciones {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-agregar {
+    background-color: #2563eb;
+    color: white;
+    font-size: 16px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+    display: block;
+    margin: 20px auto;
+}
+
+.btn-agregar:hover {
+    background-color: #1d4ed8;
+    transform: scale(1.05);
+}
+
+.btn-guardar {
+    padding: 12px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn-guardar:hover {
+    background-color: #0056b3;
+}
+
 .btn-editar {
     background-color: #28a745;
     color: white;
@@ -308,46 +291,36 @@ button,
     background-color: #c82333;
 }
 
-.btn-agregar {
-    background-color: #2563eb;
-    color: white;
-    font-size: 16px;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
-    display: block;
-    margin: 20px auto;
-    /* Centrado */
-}
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
 
-.btn-agregar:hover {
-    background-color: #1d4ed8;
-    transform: scale(1.05);
-    /* Efecto de aumento */
-}
+    .sidebar {
+        width: 100%;
+        height: auto;
+        text-align: center;
+    }
 
-.btn-guardar {
-    padding: 12px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background 0.3s ease-in-out;
-}
+    .sidebar ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
 
-.btn-guardar:hover {
-    background-color: #0056b3;
-}
+    .content {
+        padding: 10px;
+    }
 
-.logo-icon i {
-    font-size: 2.5rem;
-    color: #4CAF50;
-    /* color verde SmartMarket */
-    display: block;
-    text-align: center;
-    margin-bottom: 0.5rem;
+    .tabla-generica {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .tabla-generica th,
+    .tabla-generica td {
+        white-space: nowrap;
+    }
 }
