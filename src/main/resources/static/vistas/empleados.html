@@ -1,0 +1,60 @@
+<h2>Gestión de Empleados</h2>
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <button id="btnAgregar" class="btn-agregar">Agregar Empleado</button>
+
+    <div>
+        <label for="busqueda" style="font-weight: bold; margin-right: 10px;">Buscar</label>
+        <input type="text" id="busqueda" placeholder="Buscar por nombre, cargo..." style="padding: 6px; border: 1px solid #ccc; border-radius: 5px;" />
+    </div>
+</div>
+
+<div class="tabla-contenedor">
+    <table class="tabla-generica">
+        <thead>
+            <tr>
+                <th>Nombres</th>
+                <th>Cargo</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tablaEmpleadosBody"></tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div id="modalEmpleado" class="modal hidden">
+    <div class="modal-content">
+        <span class="cerrar-modal" id="cerrarModal">×</span>
+        <h3 id="tituloModal">Agregar Empleado</h3>
+
+        <form id="formEmpleado" novalidate>
+            <div class="form-group" id="grupoId">
+                <label for="id">ID:</label>
+                <input type="text" id="id" class="input" readonly>
+            </div>
+            <div class="form-group">
+                <label for="nombre">Nombres:</label>
+                <input type="text" id="nombre" class="input" required>
+            </div>
+            <div class="form-group">
+                <label for="cargo">Cargo:</label>
+                <select id="cargo">
+                    <option value="">Seleccione un cargo</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="telefono">Teléfono:</label>
+                <input type="text" id="telefono" class="input" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" class="input" required>
+            </div>
+            <div class="button-container">
+                <button type="submit" class="btn-guardar">Guardar Empleado</button>
+            </div>
+        </form>
+    </div>
+</div>

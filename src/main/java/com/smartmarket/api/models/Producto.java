@@ -1,5 +1,7 @@
 package com.smartmarket.api.models;
 
+import java.math.BigDecimal;
+
 // Importación de anotaciones de JPA y Lombok
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -44,5 +46,9 @@ public class Producto {
     @JoinColumn(name = "id_categoria", nullable = false)
     // Llave foránea que conecta el producto con una categoría existente
     private Categoria categoria;
+
+    // Precio de venta del producto
+    @Column(name = "precio_venta", nullable = false)
+    private BigDecimal precioVenta;
 }
 // Fin de la clase Producto

@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface IMovimientoDeInventarioRepository extends JpaRepository<MovimientoDeInventario, Integer> {
     List<MovimientoDeInventario> findBySku(String sku);
     List<MovimientoDeInventario> findByCantidadGreaterThan(int cantidad);
+    List<MovimientoDeInventario> findBySkuContainingIgnoreCaseOrProducto_NombreContainingIgnoreCase(String sku, String nombreProducto);
 }

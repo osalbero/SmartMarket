@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin(origins = "*") // permite cualquier origen
 @RestController
 @RequestMapping("/api/proveedores")
 public class ProveedorController {
@@ -29,6 +30,12 @@ public class ProveedorController {
         Optional<Proveedor> proveedor = proveedorService.obtenerPorId(id);
         return proveedor.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Buscar proveedores por nombre
+    @GetMapping("/buscar")
+    public List<Proveedor> buscarProveedores(@RequestParam String query) {
+        return proveedorService.buscarPorNombreODireccion(query);
     }
 
     // Crear un nuevo proveedor

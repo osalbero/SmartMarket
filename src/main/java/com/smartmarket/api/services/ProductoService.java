@@ -1,13 +1,16 @@
 package com.smartmarket.api.services;
 
-import com.smartmarket.api.models.Categoria;
-import com.smartmarket.api.models.Producto;
-import com.smartmarket.api.repositories.IClienteRepository;
-import com.smartmarket.api.repositories.IProductoRepository;
-import com.smartmarket.api.repositories.ICategoriaRepository;
-import org.springframework.stereotype.Service;
+import com.smartmarket.api.models.*;
+import com.smartmarket.api.repositories.*;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,16 +19,28 @@ public class ProductoService {
 
     private final IProductoRepository productoRepository;
     private final ICategoriaRepository categoriaRepository;
+    private final IEmpleadoRepository empleadoRepository;
+    private final IHistoricoPrecioRepository historicoPrecioRepository;
 
     public ProductoService(IProductoRepository productoRepository, IClienteRepository IClienteRepository,
-            ICategoriaRepository categoriaRepository) {
+            ICategoriaRepository categoriaRepository, IEmpleadoRepository empleadoRepository,
+            IHistoricoPrecioRepository historicoPrecioRepository) {
         this.productoRepository = productoRepository;
         this.categoriaRepository = categoriaRepository;
+        this.empleadoRepository = empleadoRepository;
+        this.historicoPrecioRepository = historicoPrecioRepository;
     }
 
     // Obtener todos los productos
     public List<Producto> obtenerTodos() {
         return productoRepository.findAll();
+    }
+
+    // Buscar productos por nombre, descripción o SKU
+    public List<Producto> buscarPorNombreDescripcionOSku(String query) {
+        return productoRepository
+                .findByNombreContainingIgnoreCaseOrDescripcionContainingIgnoreCaseOrSkuContainingIgnoreCaseOrCategoriaNombreContainingIgnoreCase(
+                        query, query, query, query);
     }
 
     // Obtener un producto por ID
@@ -43,23 +58,31 @@ public class ProductoService {
 
     // Crear un nuevo producto con categoría
     public Producto crearProductoConCategoria(Producto producto) {
-        Optional<Categoria> categoria = categoriaRepository.findByNombre(producto.getCategoria().getNombre());
+        // 1. Buscar categoría por ID
+        Optional<Categoria> categoria = categoriaRepository.findById(producto.getCategoria().getId());
         if (categoria.isEmpty()) {
-            throw new RuntimeException("La categoría'" + producto.getCategoria().getNombre() + "' no existe.");
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "La categoría '" + producto.getCategoria().getNombre() + "' no existe.");
         }
 
-        // Generar SKU automáticamente si no se proporciona
+        // 2. Generar SKU automáticamente si no se proporciona
         if (producto.getSku() == null || producto.getSku().isBlank()) {
             producto.setSku(generarSkuUnico());
         }
 
-        // Verificar si el SKU ya existe
+        // 3. Verificar si el SKU ya existe
         if (productoRepository.findBySku(producto.getSku()).isPresent()) {
-            throw new RuntimeException("Ya existe un producto con el SKU: " + producto.getSku());
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Ya existe un producto con el SKU: " + producto.getSku());
         }
 
-        producto.setCategoria(categoria.get()); // Asignar la categoría existente al producto
-        producto.setNombreCategoria(categoria.get().getNombre()); // Asignar el nombre de la categoría al producto
+        // 4. Asignar la categoría y su nombre
+        producto.setCategoria(categoria.get());
+        producto.setNombreCategoria(categoria.get().getNombre());
+
+        // 5. Guardar el producto
         return productoRepository.save(producto);
     }
 
@@ -83,33 +106,49 @@ public class ProductoService {
         return productoRepository.findBySku(sku);
     }
 
-    // Usar este metodo para flujos donde el SKU ens la clave principal
+    // Actualizar un producto por SKU
+    // Este método actualiza el producto por SKU y registra el cambio de precio en
+    // el histórico
     public Producto actualizarProductoPorSku(String sku, Producto productoActualizado) {
         return productoRepository.findBySku(sku)
                 .map(producto -> {
-                    String nombreCategoria = productoActualizado.getCategoria().getNombre();
+                    Integer idCategoria = productoActualizado.getCategoria().getId();
 
-                    // Buscar si la categoría ya existe
-                    Categoria categoria = categoriaRepository.findByNombre(nombreCategoria)
+                    // Buscar o crear la categoría
+                    Categoria categoria = categoriaRepository.findById(idCategoria)
                             .orElseGet(() -> {
-                                // Si no existe, crear una nueva categoría
                                 Categoria nuevaCategoria = new Categoria();
-                                nuevaCategoria.setNombre(nombreCategoria);
+                                nuevaCategoria.setId(idCategoria);
+                                nuevaCategoria.setNombre(productoActualizado.getCategoria().getNombre());
                                 return categoriaRepository.save(nuevaCategoria);
                             });
 
-                    // Asignar la categoría al producto
                     producto.setCategoria(categoria);
-                    producto.setNombreCategoria(categoria.getNombre()); // Si usas nombreCategoria como campo
 
-                    // Actualizar otros datos del producto
+                    // Validación y actualización de precioVenta
+                    BigDecimal precioAnterior = producto.getPrecioVenta();
+                    BigDecimal nuevoPrecio = productoActualizado.getPrecioVenta();
+                    if (nuevoPrecio != null && precioAnterior != null && nuevoPrecio.compareTo(precioAnterior) != 0) {
+                        // Registrar en histórico
+                        HistoricoPrecio historico = new HistoricoPrecio();
+                        historico.setProducto(producto);
+                        historico.setPrecioAnterior(precioAnterior);
+                        historico.setPrecioNuevo(nuevoPrecio);
+                        historico.setFechaActualizacion(LocalDateTime.now());
+
+                        historicoPrecioRepository.save(historico);
+
+                        producto.setPrecioVenta(nuevoPrecio);
+                    }
+
+                    // Actualizar otros datos
                     producto.setNombre(productoActualizado.getNombre());
                     producto.setDescripcion(productoActualizado.getDescripcion());
                     producto.setCodigoDeBarras(productoActualizado.getCodigoDeBarras());
 
                     return productoRepository.save(producto);
                 })
-                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con SKU: " + sku));
     }
 
     // Usar este método solo si el flujo trabaja con ID de producto
@@ -161,4 +200,36 @@ public class ProductoService {
         int aleatorio = (int) (Math.random() * 900) + 100; // Genera un número aleatorio de 3 dígitos
         return "PRD" + AÑO + String.format("%02d", MES) + aleatorio;
     }
+
+    public ResponseEntity<?> actualizarPrecioPorSku(String sku, BigDecimal precioNuevo, Empleado empleado) {
+        Optional<Producto> optionalProducto = productoRepository.findBySku(sku);
+
+        if (optionalProducto.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
+        }
+
+        Producto producto = optionalProducto.get();
+        BigDecimal precioAnterior = producto.getPrecioVenta();
+
+        if (precioAnterior.compareTo(precioNuevo) == 0) {
+            return ResponseEntity.badRequest().body("El nuevo precio es igual al actual");
+        }
+
+        // Crear y guardar en histórico
+        HistoricoPrecio historico = new HistoricoPrecio();
+        historico.setProducto(producto);
+        historico.setPrecioAnterior(precioAnterior);
+        historico.setPrecioNuevo(precioNuevo);
+        historico.setFechaActualizacion(LocalDateTime.now());
+        historico.setEmpleado(empleado);
+
+        historicoPrecioRepository.save(historico);
+
+        // Actualizar el precio del producto
+        producto.setPrecioVenta(precioNuevo);
+        productoRepository.save(producto);
+
+        return ResponseEntity.ok("Precio actualizado correctamente y registrado en histórico");
+    }
+
 }

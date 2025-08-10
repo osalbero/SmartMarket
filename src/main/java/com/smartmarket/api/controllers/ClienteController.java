@@ -6,8 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
+@CrossOrigin(origins = "*") // permite cualquier origen
 @RestController
 @RequestMapping("/api/clientes")
 public class ClienteController {
@@ -26,9 +26,15 @@ public class ClienteController {
     // Obtener un cliente por ID
     @GetMapping("/{id}")
     public ResponseEntity<Cliente> obtenerPorId(@PathVariable Integer id) {
-        Optional<Cliente> cliente = clienteService.obtenerPorId(id);
-        return cliente.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return clienteService.obtenerPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(ResponseEntity.notFound()::build);
+    }
+
+    // Buscar clientes por nombre
+    @GetMapping("/buscar")
+    public List<Cliente> buscarClientes(@RequestParam String query) {
+        return clienteService.buscarPorNombreOTelefonoOEmail(query);
     }
 
     // Crear un nuevo cliente

@@ -1,0 +1,51 @@
+<h2>Registro de Movimiento de Inventario</h2>
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <button id="btnAgregar" class="btn-agregar">Agregar Movimiento</button>
+    <div>
+        <label for="busqueda" style="font-weight: bold; margin-right: 10px;">Buscar</label>
+        <input type="text" id="busqueda" placeholder="Buscar por sku, producto..."
+            style="padding: 6px; border: 1px solid #ccc; border-radius: 5px;" />
+    </div>
+</div>
+
+<div class="tabla-contenedor">
+    <table class="tabla-generica">
+        <thead>
+            <tr>
+                <th class="oculto">ID</th>
+                <th>Fecha de Movimiento</th>
+                <th>SKU</th>
+                <th>Número de Factura</th>
+                <th>Nombre Producto</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Valor Unitario</th>
+                <th>Valor Total</th>
+                <th>Proveedor</th>
+                <th>Empleado</th>                
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tablaMovimientosBody"></tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div id="modalMovimiento" class="modal hidden">
+    <div class="modal-content">
+        <span class="cerrar-modal" id="cerrarModal">×</span>
+        <h3 id="tituloModal">Registrar Movimientos por Lote</h3>
+
+        <form id="formMovimiento" novalidate>
+            <div id="movimientosContainer">
+                </div>
+
+            <button type="button" id="btnAgregarMovimientoModal" class="btn-agregar" style="margin-top: 20px;">
+                + Añadir Otro Movimiento
+            </button>
+            <div class="button-container">
+                <button type="submit" class="btn-guardar">Guardar Lote de Movimientos</button>
+            </div>
+        </form>
+    </div>
+</div>

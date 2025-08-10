@@ -1,12 +1,39 @@
-export async function cargarVista() {
+export async function cargarVistaCategorias() {
     const res = await fetch('./vistas/categorias.html');
     const html = await res.text();
-    document.getElementById("contenido").innerHTML = html;
+    const contenedor = document.getElementById("contenido");
 
+    // Animación de entrada
+    contenedor.classList.remove("animacion-entrada");
+    void contenedor.offsetHeight; // Forzar reflujo
+    contenedor.innerHTML = html;
+    contenedor.classList.add("animacion-entrada");
+
+    // Inicialización de eventos y datos
     await cargarCategorias();
     document.getElementById("btnAgregar").addEventListener("click", () => abrirModal());
     document.getElementById("formCategoria").addEventListener("submit", guardarCategoria);
     document.getElementById("cerrarModal").addEventListener("click", cerrarModal);
+
+    // Manejo de búsqueda
+    document.getElementById("busqueda").addEventListener("input", async function () {
+        const texto = this.value.trim();
+
+        if (texto === "") {
+            await cargarCategorias(); // Vuelve a cargar todos
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/categorias/buscar?query=${encodeURIComponent(texto)}`);
+            if (!response.ok) throw new Error("Error al buscar categorias");
+            const resultados = await response.json();
+            renderizarTablaCategorias(resultados);
+        } catch (error) {
+            console.error("Error al buscar categorias:", error);
+            Swal.fire("Error", "No se pudo buscar", "error");
+        }
+    });
 }
 
 async function cargarCategorias() {
@@ -24,13 +51,20 @@ async function cargarCategorias() {
 
 function renderizarTablaCategorias(categorias) {
     const body = document.getElementById("tablaCategoriasBody");
+    const termino = document.getElementById("busqueda").value.trim().toLowerCase();
+    // Resaltar coincidencias en la búsqueda
     body.innerHTML = "";
 
+    const resaltar = (texto) => {
+        if (!termino) return texto;
+        const regex = new RegExp(`(${termino})`, "gi");
+        return texto.replace(regex, '<span class="resaltado">$1</span>');
+    };
     categorias.forEach(c => {
         const fila = document.createElement("tr");
         fila.innerHTML = `
             <td>${c.id}</td>
-            <td>${c.nombre}</td>            
+            <td>${resaltar(c.nombre)}</td>            
             <td>
                 <button class="btn-editar" data-categoria='${encodeURIComponent(JSON.stringify(c))}'>Editar</button>
                 <button class="btn-eliminar" data-id='${c.id}' data-nombre='${c.nombre}'>Eliminar</button>
@@ -153,7 +187,8 @@ async function eliminarCategoria(id, nombre) {
         text: `¿Estás seguro de eliminar la categoría "${nombre}"?`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: "Sí, eliminar"
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar"
     });
 
     if (confirm.isConfirmed) {
@@ -162,12 +197,16 @@ async function eliminarCategoria(id, nombre) {
                 method: "DELETE"
             });
 
-            if (!res.ok) throw new Error("Error al eliminar la categoría");
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || "Error desconocido al eliminar la categoría");
+            }
 
-            Swal.fire("Eliminado", "Categoría eliminada correctamente", "success");
+            Swal.fire("Eliminado", `Categoría "${nombre}" eliminada correctamente`, "success");
             await cargarCategorias();
         } catch (error) {
-            Swal.fire("Error", "No se pudo eliminar la categoría", "error");
+            console.error("Error al eliminar la categoría:", error.message);
+            Swal.fire("Error", error.message, "error");
         }
     }
 }

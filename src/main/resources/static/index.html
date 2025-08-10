@@ -7,41 +7,50 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistema de Gestión</title>
+
+    <!-- Estilos -->
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Librerías externas -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="modulos/script.js"></script>
-    <script type="module" src="modulos/productos.js"></script>
-    <script type="module" src="modulos/categorias.js"></script>
+
+    <!-- Tu punto de entrada modular -->
+    <script type="module" src="main.js"></script>
 </head>
 
 <body>
+    <div class="layout-container">
+        <button class="hamburger-menu" id="hamburger-menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fas fa-store"></i></div>
+                <div class="app-name">SmartMarket</div>
+            </div>
+            <h2 id="menu-inicio" style="cursor: pointer;"><i class="fas fa-home"></i> Inicio</h2>
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-icon"><i class="fas fa-store"></i></div>
-            <div class="app-name">SmartMarket</div>
-        </div>
-        <h2 id="menu-inicio" style="cursor: pointer;"><i class="fas fa-home"></i> Inicio</h2>
+            <ul>
+                <li><a href="#" id="menu-productos"><span>📦</span> Productos</a></li>
+                <li><a href="#" id="menu-movimientos-inventario"><span>📊</span> Movimientos de Inventario</a></li>
+                <li><a href="#" id="menu-ventas"><span>🧾</span> Ventas</a></li>
+                <li><a href="#" id="menu-categorias"><span>🏷️</span> Categorías</a></li>
+                <li><a href="#" id="menu-cargos"><span>💼</span> Cargos</a></li>
+                <li><a href="#" id="menu-proveedores"><span>🚚</span> Proveedores</a></li>
+                <li><a href="#" id="menu-clientes"><span>👤</span> Clientes</a></li>
+                <li><a href="#" id="menu-reportes"><span>📊</span> Reportes</a></li>
+                <li><a href="#" id="menu-cierre-caja"><span>🧮</span> Cierre de Caja</a></li>
+                <li><a href="#" id="menu-empleados"><span>👥</span> Empleados</a></li>
+                <li><a href="#" id="menu-configuraciones"><span>⚙️</span> Configuraciones</a></li>
+            </ul>
+        </aside>
 
-
-        <ul>
-            <li><a href="#" id="menu-productos"><span>📦</span> Productos</a></li>
-            <li><a href="#" id="menu-ventas"><span>🧾</span> Ventas</a></li>
-            <li><a href="#" id="menu-categorias"><span>🏷️</span> Categorías</a></li>
-            <li><a href="#" id="menu-proveedores"><span>🚚</span> Proveedores</a></li>
-            <li><a href="#" id="menu-clientes"><span>👤</span> Clientes</a></li>
-            <li><a href="#" id="menu-reportes"><span>📊</span> Reportes</a></li>
-            <li><a href="#" id="menu-cierre-caja"><span>🧮</span> Cierre de Caja</a></li>
-            <li><a href="#" id="menu-empleados"><span>👥</span> Empleados</a></li>
-            <li><a href="#" id="menu-configuraciones"><span>⚙️</span> Configuraciones</a></li>
-        </ul>
-    </aside>
-
-    <!-- Contenedor dinámico -->
-    <main class="content" id="contenido"></main>
-    
+        <!-- Contenedor dinámico -->
+        <main class="content" id="contenido"></main>
+    </div>
 </body>
 
 <script type="module" src="main.js"></script>

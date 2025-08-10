@@ -1,34 +1,48 @@
 package com.smartmarket.api.services;
 
-import com.smartmarket.api.models.GestionStock;
 import com.smartmarket.api.models.EstadoStock;
+import com.smartmarket.api.models.GestionStock;
 import com.smartmarket.api.repositories.IGestionStockRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class GestionStockService {
-    private final IGestionStockRepository gestionStockRepository;
 
-    public GestionStockService(IGestionStockRepository gestionStockRepository) {
-        this.gestionStockRepository = gestionStockRepository;
-    }
+    @Autowired
+    private IGestionStockRepository gestionStockRepo;
 
-    // Registrar un movimiento de stock
-    public GestionStock registrarMovimiento(String sku, int cantidad, EstadoStock estadoStock, String usuario) {
+    @Autowired
+    private InventarioProductoService inventarioProductoService;
+
+    public GestionStock registrarMovimiento(String sku, int cantidad, EstadoStock estadoStock, String usuario, String descripcion) {
         GestionStock movimiento = new GestionStock();
         movimiento.setSku(sku);
         movimiento.setCantidad(cantidad);
         movimiento.setEstadoStock(estadoStock);
         movimiento.setUsuarioResponsable(usuario);
         movimiento.setFechaMovimiento(LocalDateTime.now());
+        movimiento.setDescripcionMovimiento(descripcion);
 
-        return gestionStockRepository.save(movimiento);
+        System.out.println("🟢 Registrando en gestion_stock: SKU=" + sku + ", cantidad=" + cantidad + ", estado=" + estadoStock);
+
+        // Guardar el movimiento
+        gestionStockRepo.save(movimiento);
+
+        // Actualizar inventario
+        inventarioProductoService.actualizarStockDesdeGestion(movimiento);
+
+        return movimiento;
     }
 
-    // Consultar movimientos de stock por SKU
     public List<GestionStock> obtenerMovimientosPorSku(String sku) {
-        return gestionStockRepository.findBySku(sku);
+        return gestionStockRepo.findBySku(sku);
+    }
+
+    public List<GestionStock> obtenerTodosMovimientos() {
+        return gestionStockRepo.findAll();
     }
 }

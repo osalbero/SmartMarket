@@ -1,15 +1,53 @@
-<h1>Módulo de Clientes</h1>
-<table class="clientes-table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>NOMBRES</th>
-            <th>TELEFONO</th>
-            <th>EMAIL</th>
-            <th>ACCIÓN</th>
-        </tr>
-    </thead>
-    <tbody id="clientesBody">
-        <!-- Datos cargados con JavaScript -->
-    </tbody>
-</table>
+<h2>Gestión de Clientes</h2>
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <button id="btnAgregar" class="btn-agregar">Agregar Cliente</button>
+    <div>
+        <label for="busqueda" style="font-weight: bold; margin-right: 10px;">Buscar</label>
+        <input type="text" id="busqueda" placeholder="Buscar por nombre, teléfono, email..." style="padding: 6px; border: 1px solid #ccc; border-radius: 5px;" />
+    </div>
+</div>
+
+<div class="tabla-contenedor">
+    <table class="tabla-generica">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombres</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tablaClientesBody"></tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div id="modalCliente" class="modal hidden">
+    <div class="modal-content">
+        <span class="cerrar-modal" id="cerrarModal">×</span>
+        <h3 id="tituloModal">Agregar Cliente</h3>
+
+        <form id="formCliente" novalidate>
+            <div class="form-group" id="grupoId">
+                <label for="id">ID:</label>
+                <input type="text" id="id" class="input" readonly>
+            </div>
+            <div class="form-group">
+                <label for="nombre">Nombres:</label>
+                <input type="text" id="nombre" class="input" required>
+            </div>
+            <div class="form-group">
+                <label for="telefono">Teléfono:</label>
+                <input type="text" id="telefono" class="input" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" class="input" required>
+            </div>
+            <div class="button-container">
+                <button type="submit" class="btn-guardar">Guardar Cliente</button>
+            </div>
+        </form>
+    </div>
+</div>

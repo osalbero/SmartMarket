@@ -1,12 +1,12 @@
 package com.smartmarket.api.repositories;
 
 import com.smartmarket.api.models.GestionStock;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+
 public interface IGestionStockRepository extends JpaRepository<GestionStock, Integer> {
+
     List<GestionStock> findBySku(String sku);
 }

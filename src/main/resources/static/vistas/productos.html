@@ -1,5 +1,13 @@
 <h2>Gestión de Productos</h2>
-<button id="btnAgregar" class="btn-agregar">Agregar Producto</button>
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <button id="btnAgregar" class="btn-agregar">Agregar Producto</button>
+
+    <div>
+        <label for="busqueda" style="font-weight: bold; margin-right: 10px;">Buscar</label>
+        <input type="text" id="busqueda" placeholder="Buscar por nombre, Desc..."
+            style="padding: 6px; border: 1px solid #ccc; border-radius: 5px;" />
+    </div>
+</div>
 
 <div class="tabla-contenedor">
     <table class="tabla-generica">
@@ -10,6 +18,7 @@
                 <th>Descripción</th>
                 <th>Código de Barras</th>
                 <th>Categoría</th>
+                <th>Precio de Venta</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -46,10 +55,32 @@
                     <option value="">Seleccione una categoría</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label for="precioVenta">Precio de Venta:</label>
+                <input type="number" id="precioVenta" step="0.01" required>
+            </div>
 
             <div class="button-container">
                 <button type="submit" class="btn-guardar">Guardar Producto</button>
             </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para editar solo el precio -->
+<div id="modalEditarPrecio" class="modal hidden">
+    <div class="modal-content">
+        <span class="cerrar-modal" id="cerrarModalPrecioX">×</span>
+        <form id="formEditarPrecio">
+            <h2>Editar Precio</h2>
+            <label for="skuPrecio">SKU</label>
+            <input type="text" id="skuPrecio" readonly />
+
+            <label for="precioNuevo">Nuevo Precio</label>
+            <input type="number" id="precioNuevo" step="0.01" required />
+
+            <button type="submit" class="btn-guardar">Actualizar</button>
+            <button type="button" class="btn-cancel" id="cerrarModalPrecio">Cancelar</button>
         </form>
     </div>
 </div>

@@ -2,18 +2,16 @@ package com.smartmarket.api.controllers;
 
 import com.smartmarket.api.models.Categoria;
 import com.smartmarket.api.services.CategoriaService;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
+@CrossOrigin(origins = "*") // permite cualquier origen
 @RestController
 @RequestMapping("/api/categorias")
 public class CategoriaController {
+
     private final CategoriaService categoriaService;
 
     public CategoriaController(CategoriaService categoriaService) {
@@ -29,9 +27,15 @@ public class CategoriaController {
     // Obtener una categoría por ID
     @GetMapping("/{id}")
     public ResponseEntity<Categoria> obtenerPorId(@PathVariable Integer id) {
-        Optional<Categoria> categoria = categoriaService.obtenerPorId(id);
-        return categoria.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return categoriaService.obtenerPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(ResponseEntity.notFound()::build);
+    }
+
+    // Buscar categorías por nombre
+    @GetMapping("/buscar")
+    public List<Categoria> buscarCategorias(@RequestParam String query) {
+        return categoriaService.buscarPorNombre(query);
     }
 
     // Crear una nueva categoría
@@ -41,7 +45,7 @@ public class CategoriaController {
         return ResponseEntity.ok(nuevaCategoria);
     }
 
-    // ✅ 🔹 Crear múltiples categorías (Bulk Insert)
+    // Crear múltiples categorías (Bulk Insert)
     @PostMapping("/lote")
     public ResponseEntity<List<Categoria>> crearCategorias(@RequestBody List<Categoria> categorias) {
         List<Categoria> nuevasCategorias = categoriaService.crearCategorias(categorias);
@@ -57,18 +61,8 @@ public class CategoriaController {
 
     // Actualizar una categoría por ID
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarCategoria(@PathVariable Integer id, @RequestBody Categoria categoria) {
-        // Verificar si el nombre ya existe en otra categoría
-        Optional<Categoria> existente = categoriaService.buscarPorNombre(categoria.getNombre());
-
-        if (existente.isPresent() && !existente.get().getId().equals(id)) {
-            // Ya existe otra categoría con el mismo nombre
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "Ya existe una categoría " + categoria.getNombre()));
-        }
-
+    public ResponseEntity<Categoria> actualizarCategoria(@PathVariable Integer id, @RequestBody Categoria categoria) {
         Categoria actualizada = categoriaService.actualizarCategoria(id, categoria);
         return ResponseEntity.ok(actualizada);
     }
-
 }
