@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <!-- En tu <head> del HTML -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <head>
     <meta charset="UTF-8" />
@@ -32,27 +32,46 @@
                 <div class="app-name">SmartMarket</div>
             </div>
             <h2 id="menu-inicio" style="cursor: pointer;"><i class="fas fa-home"></i> Inicio</h2>
-
+            <hr>
+            <li class="menu-heading">Gestión</li>
             <ul>
                 <li><a href="#" id="menu-productos"><span>📦</span> Productos</a></li>
-                <li><a href="#" id="menu-movimientos-inventario"><span>📊</span> Movimientos de Inventario</a></li>
-                <li><a href="#" id="menu-ventas"><span>🧾</span> Ventas</a></li>
                 <li><a href="#" id="menu-categorias"><span>🏷️</span> Categorías</a></li>
-                <li><a href="#" id="menu-cargos"><span>💼</span> Cargos</a></li>
                 <li><a href="#" id="menu-proveedores"><span>🚚</span> Proveedores</a></li>
-                <li><a href="#" id="menu-clientes"><span>👤</span> Clientes</a></li>
+                <hr>
+                <li class="menu-heading">Operaciones</li>
+                <li><a href="#" id="menu-ventas"><span>🧾</span> Ventas</a></li>
+                <li><a href="#" id="menu-movimientos-inventario"><span>📊</span> Movimientos de Inventario</a></li>
                 <li><a href="#" id="menu-reportes"><span>📊</span> Reportes</a></li>
                 <li><a href="#" id="menu-cierre-caja"><span>🧮</span> Cierre de Caja</a></li>
+                <hr>
+                <li class="menu-heading">Personal y Clientes</li>
+                <li><a href="#" id="menu-cargos"><span>💼</span> Cargos</a></li>
+                <li><a href="#" id="menu-clientes"><span>👤</span> Clientes</a></li>
+
                 <li><a href="#" id="menu-empleados"><span>👥</span> Empleados</a></li>
+                <hr>
                 <li><a href="#" id="menu-configuraciones"><span>⚙️</span> Configuraciones</a></li>
+                <hr>
+                <li><a href="#" id="logout-button" class="logout-link"><i class="fas fa-sign-out-alt"></i> Cerrar
+                        Sesión</a></li>
             </ul>
         </aside>
 
         <!-- Contenedor dinámico -->
         <main class="content" id="contenido"></main>
     </div>
-</body>
 
-<script type="module" src="main.js"></script>
+    <script>
+        // Verificar si hay token, si no, redirigir al login
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('token')) {
+                window.location.href = './login.html';
+            }
+        });
+    </script>
+
+    <script type="module" src="main.js"></script>
+</body>
 
 </html>

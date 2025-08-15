@@ -2,18 +2,26 @@ package com.smartmarket.api.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Getter
-@Setter
 @Table(name = "empleado")
-public class Empleado {
+public class Empleado implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_empleado")
@@ -33,15 +41,44 @@ public class Empleado {
     @Column(name = "email_empleado", nullable = false, length = 100, unique = true)
     private String email;
 
-    @Column(name = "nombre_cargo")
-    // Nombre del cargo del empleado (opcional, posiblemente redundante)
-    private String nombreCargo;
-
-    @Column(name = "password", nullable = false) // Nuevo campo
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "roles") // Nuevo campo
-    private String roles;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

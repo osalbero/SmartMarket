@@ -67,7 +67,6 @@ public class EmpleadoService {
 
         // 2. Asignar el cargo y su nombre
         empleado.setCargo(cargo.get());
-        empleado.setNombreCargo(cargo.get().getNombre());
 
         // 3. Guardar el empleado
         return empleadoRepository.save(empleado);
@@ -107,7 +106,6 @@ public class EmpleadoService {
 
         // Actualizar campos
         empleadoExistente.setCargo(cargo);
-        empleadoExistente.setNombreCargo(cargo.getNombre());
         empleadoExistente.setNombre(empleadoActualizado.getNombre());
         empleadoExistente.setTelefono(empleadoActualizado.getTelefono());
         empleadoExistente.setEmail(empleadoActualizado.getEmail());

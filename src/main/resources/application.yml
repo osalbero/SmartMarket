@@ -1,0 +1,10 @@
+# Clave secreta para firmar los tokens JWT. Debe ser una cadena larga y segura.
+# Puedes generar una en línea o usar una herramienta. Por ejemplo, una cadena Base64.
+jwt:
+    secret:
+            key: VGhpc0lzQTMyQ2hhcmFjdGVyU3RyaW5nMTIzNDU2Nzg=
+    time:
+        expiration: 86400000
+
+# Tiempo de expiración del token en milisegundos.
+# Por ejemplo, 1000 * 60 * 60 * 24 son 24 horas.

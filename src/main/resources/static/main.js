@@ -8,13 +8,13 @@ import { cargarVistaProveedores } from './modulos/proveedores.js';
 import { cargarVistaMovimientosInventario } from './modulos/movimientos_inventario.js';
 import { cargarVistaVentas } from './modulos/ventas.js';
 
-// Mostrar la vista de inicio
+// Función para mostrar la vista de inicio
 function mostrarInicio() {
     const contenido = document.getElementById("contenido");
 
     //Reiniciar animación
     contenido.classList.remove("animacion-entrada");
-    void contenido.offsetHeight; // Forzar reflujo para reiniciar la animación    
+    void contenido.offsetHeight; // Forzar reflujo para reiniciar la animación
 
     contenido.innerHTML = `
         <div class="welcome-card">
@@ -37,17 +37,50 @@ function cerrarSidebar() {
     body.classList.remove("sidebar-open");
 }
 
+// Función para manejar el cierre de sesión
+function logout() {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¡Se cerrará tu sesión!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, cerrar sesión',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Eliminar el token de autenticación del localStorage
+            localStorage.removeItem('token');
+            // Redirigir a la página de login
+            window.location.href = './login.html';
+        }
+    });
+}
+
 // Eventos para el menú lateral
 document.addEventListener("DOMContentLoaded", () => {
+    // --- VERIFICACIÓN DE AUTENTICACIÓN ---
+    // Obtener el token de autenticación del localStorage
+    const token = localStorage.getItem('token');
+
+    // Si no hay token, el usuario no está autenticado. Redirigirlo a la página de login.
+    if (!token) {
+        console.log("Token no encontrado. Redirigiendo a la página de login.");
+        window.location.href = '/login.html';
+        return; // Detener la ejecución del resto del script
+    }
+    // --- FIN VERIFICACIÓN DE AUTENTICACIÓN ---
+    
     const sidebar = document.getElementById("sidebar");
     const hamburgerMenu = document.getElementById("hamburger-menu");
-    const content = document.getElementById("contenido"); // Obtener el contenido para el overlay
+    const content = document.getElementById("contenido");
 
     // Evento para abrir/cerrar el menú hamburguesa
     hamburgerMenu.addEventListener("click", () => {
         sidebar.classList.toggle("active");
-        content.classList.toggle("shifted"); // Desplaza el contenido
-        document.body.classList.toggle("sidebar-open"); // Deshabilita scroll en body
+        content.classList.toggle("shifted");
+        document.body.classList.toggle("sidebar-open");
     });
 
     // Evento para cerrar el menú si se hace clic fuera de él (en el overlay del contenido)
@@ -55,6 +88,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (sidebar.classList.contains("active") && !sidebar.contains(e.target) && e.target !== hamburgerMenu) {
             cerrarSidebar();
         }
+    });
+
+    // Evento para el nuevo botón de Cerrar Sesión
+    document.getElementById("logout-button").addEventListener("click", e => {
+        e.preventDefault();
+        logout();
+        cerrarSidebar(); // Cerrar el menú después de iniciar la acción de logout
     });
 
     // Asegurarse de cerrar el sidebar al seleccionar una opción
@@ -112,5 +152,6 @@ document.addEventListener("DOMContentLoaded", () => {
         cerrarSidebar(); // Cerrar al seleccionar
     });
 
-    mostrarInicio(); // Cargar inicio al arrancar
+    // Cargar la vista de inicio al arrancar la aplicación (solo si hay un token)
+    mostrarInicio();
 });

@@ -9,7 +9,18 @@ import java.util.Optional;
 
 @Repository
 public interface IEmpleadoRepository extends JpaRepository<Empleado, Integer> {
+
+    // Buscar por email exacto (clave para autenticación)
     Optional<Empleado> findByEmail(String email);
+
+    // Validar si ya existe un email
     boolean existsByEmail(String email);
-    List<Empleado> findByNombreContainingIgnoreCaseOrCargoNombreContainingIgnoreCaseOrTelefonoContainingIgnoreCaseOrEmailContainingIgnoreCase(String nombre, String cargo, String telefono, String email);
+
+    // Búsqueda general (nombre, cargo, teléfono o email)
+    List<Empleado> findByNombreContainingIgnoreCaseOrCargoNombreContainingIgnoreCaseOrTelefonoContainingIgnoreCaseOrEmailContainingIgnoreCase(
+        String nombre,
+        String cargo,
+        String telefono,
+        String email
+    );
 }
