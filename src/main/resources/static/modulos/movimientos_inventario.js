@@ -1,3 +1,4 @@
+import {fetchWithAuth} from "../main.js";
 // Variable global para mantener el conteo de los movimientos agregados
 let movimientoCount = 0;
 // Variables para almacenar las listas de proveedores y empleados una vez cargadas
@@ -16,8 +17,8 @@ export async function cargarVistaMovimientosInventario() {
 
     await cargarMovimientos();
     // Cargar proveedores y empleados una sola vez al inicio
-    proveedoresData = await cargarDatosAPI("http://localhost:8080/api/proveedores");
-    empleadosData = await cargarDatosAPI("http://localhost:8080/api/empleados");
+    proveedoresData = await cargarDatosAPI("/api/proveedores");
+    empleadosData = await cargarDatosAPI("/api/empleados");
 
     document.getElementById("btnAgregar").addEventListener("click", () => abrirModal());
     // El evento 'submit' ahora va a `guardarLoteMovimientos`
@@ -36,7 +37,7 @@ export async function cargarVistaMovimientosInventario() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/movimientos-inventario/buscar?query=${encodeURIComponent(texto)}`);
+            const response = await fetchWithAuth(`/api/movimientos-inventario/buscar?query=${encodeURIComponent(texto)}`);
             if (!response.ok) throw new Error("Error al buscar movimientos");
             const resultados = await response.json();
             renderizarTablaMovimientos(resultados);
@@ -50,7 +51,7 @@ export async function cargarVistaMovimientosInventario() {
 // Función auxiliar para cargar datos de APIs (proveedores, empleados)
 async function cargarDatosAPI(url) {
     try {
-        const res = await fetch(url);
+        const res = await fetchWithAuth(url);
         if (!res.ok) throw new Error(`Error al cargar datos de ${url}`);
         return await res.json();
     } catch (e) {
@@ -224,7 +225,7 @@ async function validarsku(skuInput, nombrePreviewElement) {
     }
 
     try {
-        const resp = await fetch(`http://localhost:8080/api/productos/sku/${sku}`);
+        const resp = await fetchWithAuth(`/api/productos/sku/${sku}`);
         if (!resp.ok) {
             throw new Error(`Producto no encontrado con SKU: ${sku}`);
         }
@@ -289,9 +290,9 @@ async function guardarLoteMovimientos(e) {
 
     console.log("Guardando lote de movimientos:", JSON.stringify(movimientos, null, 2));
 
-    const url = "http://localhost:8080/api/movimientos-inventario/lote"; // Endpoint de lote
+    const url = "/api/movimientos-inventario/lote"; // Endpoint de lote
     try {
-        const res = await fetch(url, {
+        const res = await fetchWithAuth(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(movimientos)
@@ -315,7 +316,7 @@ async function guardarLoteMovimientos(e) {
 
 async function cargarMovimientos() {
     try {
-        const res = await fetch("http://localhost:8080/api/movimientos-inventario");
+        const res = await fetchWithAuth("/api/movimientos-inventario");
         if (!res.ok) throw new Error("Error al cargar movimientos");
         const movimientos = await res.json();
         if (!Array.isArray(movimientos)) throw new Error("Datos de movimientos inválidos");

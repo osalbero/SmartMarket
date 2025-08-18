@@ -28,18 +28,26 @@ public class AuthService {
 
     // Lógica para el login de un empleado
     public AuthResponse login(LoginRequest request) {
-        // 1. Autentica al usuario usando el email y la contraseña
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        try {
+            // 1. Autentica al usuario usando el email y la contraseña
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        // 2. Si la autenticación es exitosa, Busca al usuario en la base de datos
-        UserDetails user = empleadoRepository.findByEmail(request.getEmail()).orElseThrow();
+            // 2. Si la autenticación es exitosa, busca al empleado para obtener su ID
+            Empleado empleado = empleadoRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Empleado no encontrado"));
 
-        // 3. Genera el token JWT para el usuario
-        String jwtToken = jwtService.generateToken(user);
+            // 3. Genera el token JWT que incluya el ID del empleado
+            // Asume que tu método generateToken puede tomar un segundo parámetro para el ID
+            String jwtToken = jwtService.generateToken(empleado);
 
-        // 4. Crea y devuelve el objeto AuthResponse que contiene el token
-        return AuthResponse.builder().token(jwtToken).build();
+            // 4. Crea y devuelve el objeto AuthResponse que contiene el token y el ID del empleado
+            return AuthResponse.builder()
+                    .token(jwtToken)
+                    .build();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas", e);
+        }
     }
 
     // Lógica para registrar un nuevo empleado
@@ -69,13 +77,13 @@ public class AuthService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .cargo(cargo)
-                .role(Role.USER) // o el que correspond a la lógica
+                .role(Role.USER) // o el que corresponde a la lógica
                 .build();
 
         // 4. Guardar
         Empleado guardado = empleadoRepository.save(empleado);
 
-        // 5. Generar token (si usas JWT)
+        // 5. Generar token con el ID del empleado
         String jwtToken = jwtService.generateToken(guardado);
 
         return AuthResponse.builder().token(jwtToken).build();

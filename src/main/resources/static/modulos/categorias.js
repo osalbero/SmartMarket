@@ -1,16 +1,24 @@
+import { fetchWithAuth } from "../main.js";
 export async function cargarVistaCategorias() {
-    const res = await fetch('./vistas/categorias.html');
-    const html = await res.text();
     const contenedor = document.getElementById("contenido");
+    const res = await fetch('./vistas/categorias.html');
+    if (!res.ok) {
+      throw new Error(`Error al cargar la vista: ${res.status}`);
+    }
 
+    const html = await res.text();
+    contenedor.innerHTML = html;
+    // Espera a que el DOM se actualice
+    await new Promise(resolve => setTimeout(resolve, 0));
     // Animación de entrada
     contenedor.classList.remove("animacion-entrada");
-    void contenedor.offsetHeight; // Forzar reflujo
-    contenedor.innerHTML = html;
+    void contenedor.offsetHeight; // Forzar reflujo    
+    await new Promise(resolve => setTimeout(resolve, 0)); // Espera a que el DOM se actualice
     contenedor.classList.add("animacion-entrada");
 
     // Inicialización de eventos y datos
     await cargarCategorias();
+    await new Promise(resolve => setTimeout(resolve, 0));
     document.getElementById("btnAgregar").addEventListener("click", () => abrirModal());
     document.getElementById("formCategoria").addEventListener("submit", guardarCategoria);
     document.getElementById("cerrarModal").addEventListener("click", cerrarModal);
@@ -25,7 +33,7 @@ export async function cargarVistaCategorias() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/categorias/buscar?query=${encodeURIComponent(texto)}`);
+            const response = await fetchWithAuth(`/api/categorias/buscar?query=${encodeURIComponent(texto)}`);
             if (!response.ok) throw new Error("Error al buscar categorias");
             const resultados = await response.json();
             renderizarTablaCategorias(resultados);
@@ -37,8 +45,14 @@ export async function cargarVistaCategorias() {
 }
 
 async function cargarCategorias() {
+    function mostrarLoader() {
+        document.getElementById("tablaCategoriasBody").innerHTML = `
+        <tr><td colspan="3" class="centrado"><div class="spinner"></div></td></tr>
+      `;
+    }
     try {
-        const response = await fetch("http://localhost:8080/api/categorias");
+        mostrarLoader();
+        const response = await fetchWithAuth("/api/categorias");
         if (!response.ok) throw new Error("Error al obtener categorias");
         const categorias = await response.json();
         if (!Array.isArray(categorias)) throw new Error("Datos de categorias no válidos");
@@ -141,11 +155,11 @@ async function guardarCategoria(e) {
     // Determinar método y URL según si es creación o actualización
     const metodo = id ? "PUT" : "POST";
     const url = id
-        ? `http://localhost:8080/api/categorias/${id}`
-        : "http://localhost:8080/api/categorias";
+        ? `/api/categorias/${id}`
+        : "/api/categorias";
 
     try {
-        const res = await fetch(url, {
+        const res = await fetchWithAuth(url, {
             method: metodo,
             headers: {
                 "Content-Type": "application/json"
@@ -193,7 +207,7 @@ async function eliminarCategoria(id, nombre) {
 
     if (confirm.isConfirmed) {
         try {
-            const res = await fetch(`http://localhost:8080/api/categorias/${id}`, {
+            const res = await fetchWithAuth(`http://localhost:8080/api/categorias/${id}`, {
                 method: "DELETE"
             });
 

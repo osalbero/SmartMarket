@@ -894,3 +894,23 @@ span[id^="nombreProductoPreview-"] {
 .search-results li:last-child {
     border-bottom: none;
 }
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 4px solid #ccc;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+  margin: auto;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.centrado {
+  text-align: center;
+}

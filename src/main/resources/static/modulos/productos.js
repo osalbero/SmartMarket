@@ -1,3 +1,4 @@
+import { fetchWithAuth } from "../main.js";
 export async function cargarVistaProductos() {
     const res = await fetch('./vistas/productos.html');
     const html = await res.text();
@@ -30,7 +31,7 @@ export async function cargarVistaProductos() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/productos/buscar?query=${encodeURIComponent(texto)}`);
+            const response = await fetchWithAuth(`/api/productos/buscar?query=${encodeURIComponent(texto)}`);
             if (!response.ok) throw new Error("Error al buscar productos");
             const resultados = await response.json();
             renderizarTablaProductos(resultados);
@@ -43,7 +44,7 @@ export async function cargarVistaProductos() {
 
 async function cargarProductos() {
     try {
-        const response = await fetch("http://localhost:8080/api/productos");
+        const response = await fetchWithAuth("/api/productos");
         if (!response.ok) throw new Error("Error al obtener productos");
         const productos = await response.json();
         if (!Array.isArray(productos)) throw new Error("Datos de productos no válidos");
@@ -142,7 +143,7 @@ async function generarSku() {
     const prefijo = `PRD${anio}${mes}`;
 
     try {
-        const res = await fetch("http://localhost:8080/api/productos");
+        const res = await fetchWithAuth("/api/productos");
         const productos = await res.json();
 
         const existentes = productos
@@ -202,11 +203,11 @@ async function guardarProducto(e) {
     // Construcción dinámica de URL y método
     const metodo = editando ? "PUT" : "POST";
     const url = editando
-        ? `http://localhost:8080/api/productos/sku/${sku}`
-        : "http://localhost:8080/api/productos";
+        ? `/api/productos/sku/${sku}`
+        : "/api/productos";
 
     try {
-        const res = await fetch(url, {
+        const res = await fetchWithAuth(url, {
             method: metodo,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(producto)
@@ -239,7 +240,7 @@ async function eliminarProducto(id, nombre) {
 
     if (confirm.isConfirmed) {
         try {
-            const res = await fetch(`http://localhost:8080/api/productos/${id}`, {
+            const res = await fetchWithAuth(`/api/productos/${id}`, {
                 method: "DELETE"
             });
 
@@ -260,7 +261,7 @@ async function llenarSelectCategorias(seleccionadaId = null) {
     select.innerHTML = ""; // Limpiar select
 
     try {
-        const response = await fetch("http://localhost:8080/api/categorias");
+        const response = await fetchWithAuth("/api/categorias");
         if (!response.ok) throw new Error("Error al obtener categorías");
 
         const categorias = await response.json();
@@ -312,7 +313,7 @@ async function llenarSelectCategorias(seleccionadaId = null) {
                     }
 
                     // Crear nueva categoría en backend
-                    const res = await fetch("http://localhost:8080/api/categorias", {
+                    const res = await fetchWithAuth("/api/categorias", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ nombre: nuevaCat.trim() })
@@ -360,7 +361,7 @@ function actualizarPrecioProducto(event) {
     const sku = document.getElementById("skuPrecio").value;
     const precioNuevo = document.getElementById("precioNuevo").value;
 
-    fetch(`http://localhost:8080/api/productos/${sku}/precio`, {
+    fetchWithAuth(`/api/productos/${sku}/precio`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"

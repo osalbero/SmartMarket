@@ -18,7 +18,7 @@ public class EmpleadoUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Aquí podrías mapear roles, por ahora damos un rol fijo
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + empleado.getRole().name()));
     }
 
     @Override

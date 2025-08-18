@@ -1,3 +1,4 @@
+import {fetchWithAuth} from "../main.js";
 // modulos/ventas.js
 
 // Variables globales para almacenar datos cargados y el estado del formulario
@@ -23,8 +24,8 @@ export async function cargarVistaVentas() {
     contenedor.classList.add("animacion-entrada");
 
     // Cargar datos iniciales (clientes y empleados)
-    clientesData = await cargarDatosAPI("http://localhost:8080/api/clientes");
-    empleadosData = await cargarDatosAPI("http://localhost:8080/api/empleados");
+    clientesData = await cargarDatosAPI("/api/clientes");
+    empleadosData = await cargarDatosAPI("/api/empleados");
 
     // Rellenar selects de cliente y empleado
     rellenarSelect(document.getElementById('clienteSelect'), clientesData, 'Seleccione un cliente');
@@ -53,7 +54,7 @@ export async function cargarVistaVentas() {
 // Función auxiliar para cargar datos de APIs (reutilizable)
 async function cargarDatosAPI(url) {
     try {
-        const res = await fetch(url);
+        const res = await fetchWithAuth(url);
         if (!res.ok) throw new Error(`Error al cargar datos de ${url}`);
         return await res.json();
     } catch (e) {
@@ -205,7 +206,7 @@ async function searchProductsByName(rowId, query) {
     searchResultsList.innerHTML = '';
     
     try {
-        const resp = await fetch(`http://localhost:8080/api/productos/buscar?query=${encodeURIComponent(query)}`);
+        const resp = await fetchWithAuth(`/api/productos/buscar?query=${encodeURIComponent(query)}`);
         if (!resp.ok) throw new Error("Error al buscar productos");
         const productos = await resp.json();
 
@@ -273,7 +274,7 @@ async function validateProductSkuAndStock(rowId, sku) {
     }
 
     try {
-        const resp = await fetch(`http://localhost:8080/api/productos/sku/${sku}`);
+        const resp = await fetchWithAuth(`/api/productos/sku/${sku}`);
         if (!resp.ok) {
             throw new Error(`Producto no encontrado con SKU: ${sku}`);
         }
@@ -455,8 +456,8 @@ async function processPaymentAndRegisterSale() {
     console.log("Datos de la venta a enviar:", JSON.stringify(ventaData, null, 2));
 
     try {
-        const url = "http://localhost:8080/api/ventas";
-        const res = await fetch(url, {
+        const url = "/api/ventas";
+        const res = await fetchWithAuth(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(ventaData)

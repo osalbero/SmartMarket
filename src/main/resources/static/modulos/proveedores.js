@@ -1,3 +1,4 @@
+import {fetchWithAuth} from "../main.js";
 export async function cargarVistaProveedores() {
     const res = await fetch('./vistas/proveedores.html');
     const html = await res.text();
@@ -25,7 +26,7 @@ export async function cargarVistaProveedores() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/proveedores/buscar?query=${encodeURIComponent(texto)}`);
+            const response = await fetchWithAuth(`/api/proveedores/buscar?query=${encodeURIComponent(texto)}`);
             if (!response.ok) throw new Error("Error al buscar proveedores");
             const resultados = await response.json();
             renderizarTablaProveedores(resultados);
@@ -39,7 +40,7 @@ export async function cargarVistaProveedores() {
 
 async function cargarProveedores() {
     try {
-        const response = await fetch("http://localhost:8080/api/proveedores");
+        const response = await fetchWithAuth("/api/proveedores");
         if (!response.ok) throw new Error("Error al obtener proveedores");
         const proveedores = await response.json();
         if (!Array.isArray(proveedores)) throw new Error("Datos de proveedores no válidos");
@@ -134,10 +135,10 @@ async function guardarProveedor(e) {
 
     const proveedor = { id, nombre, direccion, telefono, email };
     const metodo = id ? "PUT" : "POST";
-    const url = id ? `http://localhost:8080/api/proveedores/${id}` : "http://localhost:8080/api/proveedores";
+    const url = id ? `/api/proveedores/${id}` : "/api/proveedores";
 
     try {
-        const res = await fetch(url, {
+        const res = await fetchWithAuth(url, {
             method: metodo,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(proveedor)
@@ -182,7 +183,7 @@ async function eliminarProveedor(id, nombre) {
 
     if (confirm.isConfirmed) {
         try {
-            const res = await fetch(`http://localhost:8080/api/proveedores/${id}`, {
+            const res = await fetchWithAuth(`/api/proveedores/${id}`, {
                 method: "DELETE"
             });
 

@@ -1,3 +1,4 @@
+import { fetchWithAuth } from "../main.js";
 export async function cargarVistaClientes() {
     const res = await fetch('./vistas/clientes.html');
     const html = await res.text();
@@ -25,7 +26,7 @@ export async function cargarVistaClientes() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/clientes/buscar?query=${encodeURIComponent(texto)}`);
+            const response = await fetchWithAuth(`/api/clientes/buscar?query=${encodeURIComponent(texto)}`);
             if (!response.ok) throw new Error("Error al buscar clientes");
             const resultados = await response.json();
             renderizarTablaClientes(resultados);
@@ -39,7 +40,7 @@ export async function cargarVistaClientes() {
 
 async function cargarClientes() {
     try {
-        const response = await fetch("http://localhost:8080/api/clientes");
+        const response = await fetchWithAuth("/api/clientes");
         if (!response.ok) throw new Error("Error al obtener clientes");
         const clientes = await response.json();
         if (!Array.isArray(clientes)) throw new Error("Datos de clientes no válidos");
@@ -129,10 +130,10 @@ async function guardarCliente(e) {
 
     const cliente = { id, nombre, email, telefono };
     const metodo = id ? "PUT" : "POST";
-    const url = id ? `http://localhost:8080/api/clientes/${id}` : "http://localhost:8080/api/clientes";
+    const url = id ? `/api/clientes/${id}` : "/api/clientes";
 
     try {
-        const res = await fetch(url, {
+        const res = await fetchWithAuth(url, {
             method: metodo,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(cliente)
@@ -177,7 +178,7 @@ async function eliminarCliente(id, nombre) {
 
     if (confirm.isConfirmed) {
         try {
-            const res = await fetch(`http://localhost:8080/api/clientes/${id}`, {
+            const res = await fetchWithAuth(`/api/clientes/${id}`, {
                 method: "DELETE"
             });
 

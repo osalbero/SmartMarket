@@ -56,19 +56,19 @@ public class EmpleadoService {
         return empleadoRepository.save(empleado);
     }
 
-    // Crear un empleado con validación del cargo
     public Empleado crearEmpleadoConCargo(Empleado empleado) {
-        // 1. Buscar cargo por ID
-        Optional<Cargo> cargo = cargoRepository.findById(empleado.getCargo().getId());
-        if (cargo.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Cargo '" + empleado.getCargo().getNombre() + "' no existe.");
+        Integer idCargo = empleado.getCargo() != null ? empleado.getCargo().getId() : null;
+
+        if (idCargo == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debe especificar el ID del cargo.");
         }
 
-        // 2. Asignar el cargo y su nombre
-        empleado.setCargo(cargo.get());
+        Cargo cargo = cargoRepository.findById(idCargo)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "No se encontró el cargo con ID: " + idCargo));
 
-        // 3. Guardar el empleado
+        empleado.setCargo(cargo);
+
         return empleadoRepository.save(empleado);
     }
 

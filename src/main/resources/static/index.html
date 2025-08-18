@@ -1,8 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-<!-- En tu <head> del HTML -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,10 +18,13 @@
 </head>
 
 <body>
+
+    <script src="./js/auth_checker.js"></script>
     <div class="layout-container">
         <button class="hamburger-menu" id="hamburger-menu">
             <i class="fas fa-bars"></i>
         </button>
+
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -48,13 +48,11 @@
                 <li class="menu-heading">Personal y Clientes</li>
                 <li><a href="#" id="menu-cargos"><span>💼</span> Cargos</a></li>
                 <li><a href="#" id="menu-clientes"><span>👤</span> Clientes</a></li>
-
                 <li><a href="#" id="menu-empleados"><span>👥</span> Empleados</a></li>
                 <hr>
                 <li><a href="#" id="menu-configuraciones"><span>⚙️</span> Configuraciones</a></li>
                 <hr>
-                <li><a href="#" id="logout-button" class="logout-link"><i class="fas fa-sign-out-alt"></i> Cerrar
-                        Sesión</a></li>
+                <li><a href="#" id="logout-button" class="logout-link"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
             </ul>
         </aside>
 
@@ -63,15 +61,34 @@
     </div>
 
     <script>
-        // Verificar si hay token, si no, redirigir al login
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!localStorage.getItem('token')) {
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.log("Token en localStorage:", localStorage.getItem("token"));
+                window.location.href = './login.html';
+                return;
+            }
+
+            try {
+                // Llamada al backend para validar token
+                const res = await fetch('http://localhost:8080/api/auth/validate', {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                if (!res.ok) {
+                    localStorage.removeItem('token');
+                    window.location.href = './login.html';
+                }
+            } catch (error) {
+                console.error('Error validando token:', error);
+                localStorage.removeItem('token');
                 window.location.href = './login.html';
             }
         });
     </script>
-
-    <script type="module" src="main.js"></script>
 </body>
-
 </html>

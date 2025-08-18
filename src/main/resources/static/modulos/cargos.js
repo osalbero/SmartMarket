@@ -1,3 +1,4 @@
+import { fetchWithAuth } from "../main.js";
 export async function cargarVistaCargos() {
     const res = await fetch('./vistas/cargos.html');
     const html = await res.text();
@@ -25,7 +26,7 @@ export async function cargarVistaCargos() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/cargos/buscar?query=${encodeURIComponent(texto)}`);
+            const response = await fetchWithAuth(`/api/cargos/buscar?query=${encodeURIComponent(texto)}`);
             if (!response.ok) throw new Error("Error al buscar cargos");
             const resultados = await response.json();
             renderizarTablaCargos(resultados);
@@ -38,7 +39,7 @@ export async function cargarVistaCargos() {
 
 async function cargarCargos() {
     try {
-        const response = await fetch("http://localhost:8080/api/cargos");
+        const response = await fetchWithAuth("/api/cargos");
         if (!response.ok) throw new Error("Error al obtener cargos");
         const cargos = await response.json();
         if (!Array.isArray(cargos)) throw new Error("Datos de cargos no válidos");
@@ -141,11 +142,11 @@ async function guardarCargo(e) {
     // Determinar método y URL según si es creación o actualización
     const metodo = id ? "PUT" : "POST";
     const url = id
-        ? `http://localhost:8080/api/cargos/${id}`
-        : "http://localhost:8080/api/cargos";
+        ? `/api/cargos/${id}`
+        : "/api/cargos";
 
     try {
-        const res = await fetch(url, {
+        const res = await fetchWithAuth(url, {
             method: metodo,
             headers: {
                 "Content-Type": "application/json"
@@ -193,7 +194,7 @@ async function eliminarCargo(id, nombre) {
 
     if (confirm.isConfirmed) {
         try {
-            const res = await fetch(`http://localhost:8080/api/cargos/${id}`, {
+            const res = await fetchWithAuth(`/api/cargos/${id}`, {
                 method: "DELETE"
             });
 

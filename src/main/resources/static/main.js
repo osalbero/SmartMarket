@@ -8,6 +8,35 @@ import { cargarVistaProveedores } from './modulos/proveedores.js';
 import { cargarVistaMovimientosInventario } from './modulos/movimientos_inventario.js';
 import { cargarVistaVentas } from './modulos/ventas.js';
 
+// ================== CONFIGURACIÓN API ==================
+const API_BASE = "http://localhost:8080"; // ajusta según tu backend
+
+// Helper para hacer peticiones con autenticación
+export async function fetchWithAuth(endpoint, options = {}) {
+    const token = localStorage.getItem("token");
+    console.log("Token actual:", token);
+    if (!token) {
+        window.location.href = "/login.html";
+        return;
+    }
+
+    const headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token,
+        ...options.headers
+    };
+
+    const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+
+    if (response.status === 401) {
+        // Token inválido o expirado → cerrar sesión
+        localStorage.removeItem("token");
+        window.location.href = "/login.html";
+    }
+
+    return response;
+}
+
 // Función para mostrar la vista de inicio
 function mostrarInicio() {
     const contenido = document.getElementById("contenido");
@@ -70,6 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = '/login.html';
         return; // Detener la ejecución del resto del script
     }
+    
     // --- FIN VERIFICACIÓN DE AUTENTICACIÓN ---
     
     const sidebar = document.getElementById("sidebar");

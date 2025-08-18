@@ -1,3 +1,4 @@
+import { fetchWithAuth } from "../main.js";
 export async function cargarVistaEmpleados() {
     const res = await fetch('./vistas/empleados.html');
     const html = await res.text();
@@ -25,7 +26,7 @@ export async function cargarVistaEmpleados() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/empleados/buscar?query=${encodeURIComponent(texto)}`);
+            const response = await fetchWithAuth(`/api/empleados/buscar?query=${encodeURIComponent(texto)}`);
             if (!response.ok) throw new Error("Error al buscar empleados");
             const resultados = await response.json();
             renderizarTablaEmpleados(resultados);
@@ -38,7 +39,7 @@ export async function cargarVistaEmpleados() {
 
 async function cargarEmpleados() {
     try {
-        const response = await fetch("http://localhost:8080/api/empleados");
+        const response = await fetchWithAuth("/api/empleados");
         if (!response.ok) throw new Error("Error al obtener empleados");
         const empleados = await response.json();
         // CAMBIO: Se valida si el resultado es un array
@@ -141,10 +142,10 @@ async function guardarEmpleado(e) {
     console.log('Objeto a enviar:', JSON.stringify(empleado, null, 2));
 
     const metodo = id ? "PUT" : "POST";
-    const url = id ? `http://localhost:8080/api/empleados/${id}` : "http://localhost:8080/api/empleados";
+    const url = id ? `/api/empleados/${id}` : "/api/empleados";
 
     try {
-        const res = await fetch(url, {
+        const res = await fetchWithAuth(url, {
             method: metodo,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(empleado)
@@ -185,7 +186,7 @@ async function eliminarEmpleado(id, nombre) {
 
     if (confirm.isConfirmed) {
         try {
-            const res = await fetch(`http://localhost:8080/api/empleados/${id}`, {
+            const res = await fetchWithAuth(`/api/empleados/${id}`, {
                 method: "DELETE"
             });
 
@@ -207,7 +208,7 @@ async function llenarSelectCargos(seleccionadaId = null) {
     select.innerHTML = ""; // Limpiar select
 
     try {
-        const response = await fetch("http://localhost:8080/api/cargos");
+        const response = await fetchWithAuth("/api/cargos");
         if (!response.ok) throw new Error("Error al obtener cargos");
 
         const cargos = await response.json();
@@ -259,7 +260,7 @@ async function llenarSelectCargos(seleccionadaId = null) {
                     }
 
                     // Crear nuevo cargo en backend
-                    const res = await fetch("http://localhost:8080/api/cargos", {
+                    const res = await fetchWithAuth("/api/cargos", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ nombre: nuevoCargo.trim() })

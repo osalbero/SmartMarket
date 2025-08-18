@@ -16,4 +16,5 @@ public class Cargo {
 
     @Column(name = "nombre_cargo", nullable = false, length = 50)
     private String nombre;
+    
 }

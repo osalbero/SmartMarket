@@ -41,6 +41,9 @@ public class Empleado implements UserDetails {
     @Column(name = "email_empleado", nullable = false, length = 100, unique = true)
     private String email;
 
+    @Transient
+    private String nombreCargo;
+
     @Column(name = "password", nullable = false)
     private String password;
 
