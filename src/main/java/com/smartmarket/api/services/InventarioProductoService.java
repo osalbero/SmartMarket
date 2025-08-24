@@ -3,21 +3,33 @@ package com.smartmarket.api.services;
 import com.smartmarket.api.models.EstadoStock;
 import com.smartmarket.api.models.GestionStock;
 import com.smartmarket.api.models.InventarioProducto;
+import com.smartmarket.api.models.InventarioProductoDTO;
+import com.smartmarket.api.models.Producto;
 import com.smartmarket.api.repositories.IGestionStockRepository;
+import com.smartmarket.api.repositories.IProductoRepository;
 import com.smartmarket.api.repositories.InventarioProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InventarioProductoService {
 
     @Autowired
     private InventarioProductoRepository inventarioRepo;
+    @Autowired
+    private IProductoRepository productoRepo;
 
     @Autowired
     private IGestionStockRepository gestionStockRepo;
+
+    public List<InventarioProducto> listarInventario() {
+        return inventarioRepo.findAll();
+    }
 
     public void actualizarStockDesdeGestion(GestionStock movimiento) {
         InventarioProducto inv = inventarioRepo.findBySku(movimiento.getSku())
@@ -157,5 +169,57 @@ public class InventarioProductoService {
         gestion.setDescripcionMovimiento(descripcionMovimiento);
         gestionStockRepo.save(gestion);
     }
+
+    public List<InventarioProductoDTO> listarInventarioConNombre() {
+    List<InventarioProducto> inventarios = inventarioRepo.findAll();
+    List<InventarioProductoDTO> resultado = new ArrayList<>();
+
+    for (InventarioProducto inv : inventarios) {
+        InventarioProductoDTO dto = new InventarioProductoDTO();
+        dto.setSku(inv.getSku());
+        dto.setStockDisponible(inv.getStockDisponible());
+        dto.setStockBloqueado(inv.getStockBloqueado());
+        dto.setStockAgotado(inv.getStockAgotado());
+        dto.setEstadoStockActual(inv.getEstadoStockActual());
+        dto.setUltimaActualizacion(inv.getUltimaActualizacion());
+
+        // Buscar el nombre del producto por SKU
+        Optional<Producto> producto = productoRepo.findBySku(inv.getSku());
+        dto.setNombre(producto.map(Producto::getNombre).orElse("Sin nombre"));
+
+        resultado.add(dto);
+    }
+
+    return resultado;
+}
+
+    public List<InventarioProductoDTO> buscarPorNombreOSku(String query) {
+    List<InventarioProducto> inventarios = inventarioRepo.findAll();
+    List<InventarioProductoDTO> resultado = new ArrayList<>();
+
+    for (InventarioProducto inv : inventarios) {
+        Optional<Producto> producto = productoRepo.findBySku(inv.getSku());
+
+        String nombre = producto.map(Producto::getNombre).orElse("Sin nombre");
+        boolean coincide = inv.getSku().toLowerCase().contains(query.toLowerCase()) ||
+                           nombre.toLowerCase().contains(query.toLowerCase());
+
+        if (coincide) {
+            InventarioProductoDTO dto = new InventarioProductoDTO();
+            dto.setSku(inv.getSku());
+            dto.setNombre(nombre);
+            dto.setStockDisponible(inv.getStockDisponible());
+            dto.setStockBloqueado(inv.getStockBloqueado());
+            dto.setStockAgotado(inv.getStockAgotado());
+            dto.setEstadoStockActual(inv.getEstadoStockActual());
+            dto.setUltimaActualizacion(inv.getUltimaActualizacion());
+            resultado.add(dto);
+        }
+    }
+
+    return resultado;
+}
+
+
 
 }

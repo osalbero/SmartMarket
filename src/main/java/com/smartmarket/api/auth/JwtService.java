@@ -1,12 +1,14 @@
 package com.smartmarket.api.auth;
 
 import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,7 @@ public class JwtService {
     private long expirationTime;
 
     // Extrae el nombre de usuario (subject) del token
-    public String getUsernameFromToken(String token) {
+    public String extractUsername(String token) {
         return getClaim(token, Claims::getSubject);
     }
 
@@ -42,11 +44,11 @@ public class JwtService {
     // Extrae todas las claims del token
     private Claims getAllClaims(String token) {
         return Jwts
-            .parserBuilder()
-            .setSigningKey(getKey())
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
+                .parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     // Obtiene la clave de firma decodificada
@@ -57,7 +59,7 @@ public class JwtService {
 
     // Valida si el token es válido para un UserDetails específico
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
+        final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
@@ -74,17 +76,34 @@ public class JwtService {
     // Genera un token para un UserDetails con claims extras
     public String generateToken(UserDetails userDetails, Map<String, Object> extraClaims) {
         return Jwts
-            .builder()
-            .setClaims(extraClaims)
-            .setSubject(userDetails.getUsername())
-            .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-            .signWith(getKey(), SignatureAlgorithm.HS256)
-            .compact();
+                .builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     // Sobrecarga del método para generar un token sin claims extras
     public String generateToken(UserDetails userDetails) {
-        return generateToken(userDetails, new HashMap<>());
+        Map<String, Object> claims = new HashMap<>();
+
+        // 👇 Aquí extraes el rol del UserDetails y lo agregas como claim
+        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+        if (!authorities.isEmpty()) {
+            // Tomamos el primer rol (puedes adaptarlo si hay múltiples)
+            String role = authorities.iterator().next().getAuthority();
+            claims.put("role", role); // Ejemplo: "ROLE_ADMIN"
+        }
+
+        // Nombre del empleado
+        if (userDetails instanceof EmpleadoUserDetails empleadoDetails) {
+            claims.put("nombre", empleadoDetails.getEmpleado().getNombre());
+            claims.put("id", empleadoDetails.getEmpleado().getId());
+        }
+
+        return generateToken(userDetails, claims);
     }
+
 }

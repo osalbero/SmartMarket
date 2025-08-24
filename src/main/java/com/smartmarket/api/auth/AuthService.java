@@ -27,24 +27,31 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     // Lógica para el login de un empleado
+    // AuthService.java o donde tengas tu lógica de autenticación
     public AuthResponse login(LoginRequest request) {
         try {
-            // 1. Autentica al usuario usando el email y la contraseña
+            // 1. Autenticar al usuario con email y contraseña
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-            // 2. Si la autenticación es exitosa, busca al empleado para obtener su ID
+            // 2. Buscar al empleado en la base de datos
             Empleado empleado = empleadoRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Empleado no encontrado"));
 
-            // 3. Genera el token JWT que incluya el ID del empleado
-            // Asume que tu método generateToken puede tomar un segundo parámetro para el ID
-            String jwtToken = jwtService.generateToken(empleado);
+            // 3. Crear el UserDetails personalizado
+            UserDetails userDetails = new EmpleadoUserDetails(empleado);
 
-            // 4. Crea y devuelve el objeto AuthResponse que contiene el token y el ID del empleado
+            // 4. Generar el token JWT con claims personalizados
+            String jwtToken = jwtService.generateToken(userDetails);
+
+            // 5. Retornar la respuesta con el token y datos adicionales
             return AuthResponse.builder()
                     .token(jwtToken)
+                    .nombre(empleado.getNombre())
+                    .id(empleado.getId() != null ? empleado.getId().longValue() : null)
+                    .primerIngreso(Boolean.TRUE.equals(empleado.getPrimerIngreso()))
                     .build();
+
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas", e);
         }
@@ -70,23 +77,33 @@ public class AuthService {
                     return cargoRepository.save(nuevo);
                 });
 
+        String rawPassword = request.getPassword();
+        if (rawPassword == null || rawPassword.isBlank()) {
+            rawPassword = "Abcd1234"; // password por defecto
+        }
         // 3. Construir Empleado (no setear nombreCargo)
         Empleado empleado = Empleado.builder()
                 .nombre(request.getNombre())
                 .telefono(request.getTelefono())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .password(passwordEncoder.encode(rawPassword))
                 .cargo(cargo)
-                .role(Role.USER) // o el que corresponde a la lógica
+                .role(request.getRol() != null ? request.getRol() : Role.USER) // o el que corresponde a la lógica
+                .primerIngreso(true)
                 .build();
 
         // 4. Guardar
+        System.out.println("Empleado a guardar: " + empleado);
+        System.out.println("Password (encriptado): " + empleado.getPassword());
+        System.out.println("Rol: " + empleado.getRole());
+        System.out.println("Primer ingreso: " + empleado.getPrimerIngreso());
+
         Empleado guardado = empleadoRepository.save(empleado);
 
         // 5. Generar token con el ID del empleado
         String jwtToken = jwtService.generateToken(guardado);
 
-        return AuthResponse.builder().token(jwtToken).build();
+        return AuthResponse.builder().token(jwtToken).nombre(empleado.getNombre()).primerIngreso(true).build();
     }
 
 }

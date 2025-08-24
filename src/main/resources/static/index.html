@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,7 +20,7 @@
 
 <body>
 
-    <script src="./js/auth_checker.js"></script>
+    <script src="js/auth_checker.js"></script>
     <div class="layout-container">
         <button class="hamburger-menu" id="hamburger-menu">
             <i class="fas fa-bars"></i>
@@ -28,13 +29,16 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
+                <div class="user-info">
+                    <div class="user-name">Hola, <span id="user-nombre"></span></div>
+                </div>
                 <div class="logo-icon"><i class="fas fa-store"></i></div>
                 <div class="app-name">SmartMarket</div>
             </div>
             <h2 id="menu-inicio" style="cursor: pointer;"><i class="fas fa-home"></i> Inicio</h2>
             <hr>
-            <li class="menu-heading">Gestión</li>
             <ul>
+                <li class="menu-heading">Gestión</li>
                 <li><a href="#" id="menu-productos"><span>📦</span> Productos</a></li>
                 <li><a href="#" id="menu-categorias"><span>🏷️</span> Categorías</a></li>
                 <li><a href="#" id="menu-proveedores"><span>🚚</span> Proveedores</a></li>
@@ -42,7 +46,7 @@
                 <li class="menu-heading">Operaciones</li>
                 <li><a href="#" id="menu-ventas"><span>🧾</span> Ventas</a></li>
                 <li><a href="#" id="menu-movimientos-inventario"><span>📊</span> Movimientos de Inventario</a></li>
-                <li><a href="#" id="menu-reportes"><span>📊</span> Reportes</a></li>
+                <li><a href="#" id="menu-inventarios"><span>📦</span> Inventarios</a></li>
                 <li><a href="#" id="menu-cierre-caja"><span>🧮</span> Cierre de Caja</a></li>
                 <hr>
                 <li class="menu-heading">Personal y Clientes</li>
@@ -52,7 +56,8 @@
                 <hr>
                 <li><a href="#" id="menu-configuraciones"><span>⚙️</span> Configuraciones</a></li>
                 <hr>
-                <li><a href="#" id="logout-button" class="logout-link"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+                <li><a href="#" id="logout-button" class="logout-link"><i class="fas fa-sign-out-alt"></i> Cerrar
+                        Sesión</a></li>
             </ul>
         </aside>
 
@@ -90,5 +95,12 @@
             }
         });
     </script>
+    <script>
+        // Mostrar el nombre del usuario en la barra lateral
+        const userNombre = localStorage.getItem('nombre') || 'Usuario';
+        document.getElementById('user-nombre').textContent = userNombre;
+    </script>
+
 </body>
+
 </html>

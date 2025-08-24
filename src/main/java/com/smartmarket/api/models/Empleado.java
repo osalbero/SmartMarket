@@ -1,6 +1,8 @@
 package com.smartmarket.api.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,8 +43,10 @@ public class Empleado implements UserDetails {
     @Column(name = "email_empleado", nullable = false, length = 100, unique = true)
     private String email;
 
-    @Transient
-    private String nombreCargo;
+    @JsonProperty("nombreCargo")
+    public String getNombreCargo() {
+        return cargo != null ? cargo.getNombre() : "Sin cargo";
+    }
 
     @Column(name = "password", nullable = false)
     private String password;
@@ -52,8 +56,16 @@ public class Empleado implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (role == null) {
+            System.out.println("⚠️ El rol del empleado es null: " + email);
+            return List.of(); // o puedes retornar un rol por defecto
+        }
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
+
+    @Column(name = "primer_ingreso", nullable = false)
+    private Boolean primerIngreso;
+
 
     @Override
     public String getPassword() {

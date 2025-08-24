@@ -33,41 +33,49 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        // No validar token en login o recursos públicos
-        if (path.startsWith("/api/auth/") ||
-                path.startsWith("/css/") ||
-                path.startsWith("/js/") ||
-                path.startsWith("/images/") ||
-                path.equals("/login.html") ||
-                path.equals("/register.html") ||
-                path.equals("/index.html")) {
+        if (isPublicPath(path)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String token = getTokenFromRequest(request);
+        String token = getTokenFromRequest(request);
+        if (token != null) {
+            String username = jwtService.extractUsername(token);
 
-        if (token == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        String username = jwtService.getUsernameFromToken(token);
-
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            if (jwtService.isTokenValid(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
-                        null, userDetails.getAuthorities());
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (jwtService.isTokenValid(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
+                            null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    System.out.println("❌ Token inválido para usuario: " + username);
+                }
             }
+
+            System.out.println("🔍 Ruta solicitada: " + path);
+            System.out.println("🔐 Token recibido: " + token);
+            System.out.println("👤 Usuario extraído: " + username);
+            System.out
+                    .println("✅ Autenticación en contexto: " + SecurityContextHolder.getContext().getAuthentication());
         }
 
         filterChain.doFilter(request, response);
     }
+
+private boolean isPublicPath(String path) {
+    return (
+        path.startsWith("/api/auth/") &&
+        !path.equals("/api/auth/cambiar-password") // ← excepción
+    ) || path.startsWith("/css/") ||
+         path.startsWith("/js/") ||
+         path.startsWith("/images/") ||
+         path.equals("/login.html") ||
+         path.equals("/register.html") ||
+         path.equals("/index.html");
+}
 
     private String getTokenFromRequest(HttpServletRequest request) {
         final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);

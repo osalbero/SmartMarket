@@ -44,6 +44,7 @@ async function cargarEmpleados() {
         const empleados = await response.json();
         // CAMBIO: Se valida si el resultado es un array
         if (!Array.isArray(empleados)) throw new Error("Datos de empleados no válidos");
+        console.log("📦 Empleados recibidos:", empleados);
         renderizarTablaEmpleados(empleados);
     } catch (error) {
         console.error("Error al cargar empleados:", error);
@@ -63,10 +64,21 @@ function renderizarTablaEmpleados(empleados) {
     };
 
     empleados.forEach(e => {
+        // Validación de datos mínimos requeridos
+        if (
+            !e ||
+            typeof e !== "object" ||
+            !e.nombre ||
+            !e.telefono ||
+            !e.email
+        ) {
+            console.warn("⚠️ Empleado con datos incompletos o inválidos:", e);
+            return; // Salta esta iteración
+        }
         const fila = document.createElement("tr");
         fila.innerHTML = `
                     <td>${resaltar(e.nombre)}</td>
-                    <td>${resaltar(e.cargo.nombre)}</td>
+                    <td>${resaltar(e.nombreCargo || "Sin cargo asignado")}</td>
                     <td>${resaltar(e.telefono)}</td>
                     <td>${resaltar(e.email)}</td>
                     <td>
@@ -114,6 +126,7 @@ async function abrirModal(empleado = null) {
 }
 
 function cerrarModal() {
+    document.getElementById("formEmpleado").reset();
     document.getElementById("modalEmpleado").classList.add("hidden");
 }
 
@@ -125,24 +138,33 @@ async function guardarEmpleado(e) {
     const telefono = document.getElementById("telefono").value.trim();
     const email = document.getElementById("email").value.trim();
     const cargo = document.getElementById("cargo").value;
+    const rol = document.getElementById("rol").value;
+    const errores = [];
 
-    if (!nombre || cargo === "__nueva__" || isNaN(parseInt(cargo))) {
-        Swal.fire("Error", "Nombre y un cargo válido son obligatorios", "error");
+    if (!nombre) errores.push("El nombre es obligatorio");
+    if (!telefono) errores.push("El teléfono es obligatorio");
+    if (!email || !email.includes("@")) errores.push("Email válido es obligatorio");
+    if (!rol) errores.push("Debe seleccionar un rol");
+    if (cargo === "__nueva__" || isNaN(parseInt(cargo))) errores.push("Debe seleccionar un cargo válido");
+
+    if (errores.length > 0) {
+        Swal.fire("Campos incompletos", errores.join("<br>"), "warning");
         return;
     }
 
     const empleado = {
-        id,
         nombre,
-        cargo: { id: parseInt(cargo) },
         telefono,
-        email
+        nombreCargo: document.getElementById("cargo").selectedOptions[0].text.trim(),
+        email,
+        password: "Abcd1234",
+        rol
     };
 
     console.log('Objeto a enviar:', JSON.stringify(empleado, null, 2));
 
     const metodo = id ? "PUT" : "POST";
-    const url = id ? `/api/empleados/${id}` : "/api/empleados";
+    const url = id ? `/api/empleados/${id}` : "/api/auth/register";
 
     try {
         const res = await fetchWithAuth(url, {

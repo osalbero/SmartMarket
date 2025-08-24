@@ -7,6 +7,7 @@ import { cargarVistaEmpleados } from './modulos/empleados.js';
 import { cargarVistaProveedores } from './modulos/proveedores.js';
 import { cargarVistaMovimientosInventario } from './modulos/movimientos_inventario.js';
 import { cargarVistaVentas } from './modulos/ventas.js';
+import { cargarVistaInventarios } from './modulos/inventarios.js';
 
 // ================== CONFIGURACIÓN API ==================
 const API_BASE = "http://localhost:8080"; // ajusta según tu backend
@@ -16,6 +17,7 @@ export async function fetchWithAuth(endpoint, options = {}) {
     const token = localStorage.getItem("token");
     console.log("Token actual:", token);
     if (!token) {
+        console.log("No se encontró un token. Redirigiendo a la página de login.");
         window.location.href = "/login.html";
         return;
     }
@@ -26,162 +28,186 @@ export async function fetchWithAuth(endpoint, options = {}) {
         ...options.headers
     };
 
-    const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+    try {
+        const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
 
-    if (response.status === 401) {
-        // Token inválido o expirado → cerrar sesión
-        localStorage.removeItem("token");
-        window.location.href = "/login.html";
+        if (response.status === 401) {
+            // Token inválido o expirado → cerrar sesión
+            console.warn("Token inválido o expirado. Redirigiendo a la página de login.");
+            localStorage.removeItem("token");
+            window.location.href = "/login.html";
+        }
+
+        // Manejo de otros códigos de estado de error
+        // Si la respuesta no es "ok", lanzamos un error para que la funcion que la llama pueda manejarlo
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error en la petición: ${response.status} - ${response.statusText}. Detalle: ${errorText}`);
+        }
+
+        return response;
+    } catch (error) {
+        // Captura errores de red o los errores que acabamos de lanzar
+        console.error("Error en la petición:", error);
+        throw error;
     }
-
-    return response;
 }
 
 // Función para mostrar la vista de inicio
 function mostrarInicio() {
-    const contenido = document.getElementById("contenido");
+        const contenido = document.getElementById("contenido");
 
-    //Reiniciar animación
-    contenido.classList.remove("animacion-entrada");
-    void contenido.offsetHeight; // Forzar reflujo para reiniciar la animación
+        //Reiniciar animación
+        contenido.classList.remove("animacion-entrada");
+        void contenido.offsetHeight; // Forzar reflujo para reiniciar la animación
 
-    contenido.innerHTML = `
+        contenido.innerHTML = `
         <div class="welcome-card">
             <div class="icon">📈</div>
             <h1>Bienvenido a SmartMarket</h1>
             <p>Gestiona productos, ventas, clientes y mucho más desde un solo lugar.</p>
         </div>
     `;
-    contenido.classList.add("animacion-entrada");
-}
-
-// Función para cerrar el sidebar (menú hamburguesa)
-function cerrarSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    const content = document.getElementById("contenido");
-    const body = document.body;
-
-    sidebar.classList.remove("active");
-    content.classList.remove("shifted");
-    body.classList.remove("sidebar-open");
-}
-
-// Función para manejar el cierre de sesión
-function logout() {
-    Swal.fire({
-        title: '¿Estás seguro?',
-        text: '¡Se cerrará tu sesión!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, cerrar sesión',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Eliminar el token de autenticación del localStorage
-            localStorage.removeItem('token');
-            // Redirigir a la página de login
-            window.location.href = './login.html';
-        }
-    });
-}
-
-// Eventos para el menú lateral
-document.addEventListener("DOMContentLoaded", () => {
-    // --- VERIFICACIÓN DE AUTENTICACIÓN ---
-    // Obtener el token de autenticación del localStorage
-    const token = localStorage.getItem('token');
-
-    // Si no hay token, el usuario no está autenticado. Redirigirlo a la página de login.
-    if (!token) {
-        console.log("Token no encontrado. Redirigiendo a la página de login.");
-        window.location.href = '/login.html';
-        return; // Detener la ejecución del resto del script
+        contenido.classList.add("animacion-entrada");
     }
-    
-    // --- FIN VERIFICACIÓN DE AUTENTICACIÓN ---
-    
-    const sidebar = document.getElementById("sidebar");
-    const hamburgerMenu = document.getElementById("hamburger-menu");
-    const content = document.getElementById("contenido");
 
-    // Evento para abrir/cerrar el menú hamburguesa
-    hamburgerMenu.addEventListener("click", () => {
-        sidebar.classList.toggle("active");
-        content.classList.toggle("shifted");
-        document.body.classList.toggle("sidebar-open");
-    });
+    // Función para cerrar el sidebar (menú hamburguesa)
+    function cerrarSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const content = document.getElementById("contenido");
+        const body = document.body;
 
-    // Evento para cerrar el menú si se hace clic fuera de él (en el overlay del contenido)
-    content.addEventListener("click", (e) => {
-        if (sidebar.classList.contains("active") && !sidebar.contains(e.target) && e.target !== hamburgerMenu) {
-            cerrarSidebar();
+        sidebar.classList.remove("active");
+        content.classList.remove("shifted");
+        body.classList.remove("sidebar-open");
+    }
+
+    // Función para manejar el cierre de sesión
+    function logout() {
+        // Obtener el nombre del usuario
+        const nombre = localStorage.getItem("nombre") || "Usuario";
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: `Hola ${nombre}, ¡Se cerrará tu sesión!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, cerrar sesión',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Eliminar el token de autenticación del localStorage
+                localStorage.removeItem('token');
+                // También eliminar el nombre de usuario
+                localStorage.removeItem('username');
+                // Redirigir a la página de login
+                window.location.href = './login.html';
+            }
+        });
+    }
+
+    // Eventos para el menú lateral
+    document.addEventListener("DOMContentLoaded", () => {
+        // --- VERIFICACIÓN DE AUTENTICACIÓN ---
+        // Obtener el token de autenticación del localStorage
+        const token = localStorage.getItem('token');
+
+        // Si no hay token, el usuario no está autenticado. Redirigirlo a la página de login.
+        if (!token) {
+            console.log("Token no encontrado. Redirigiendo a la página de login.");
+            window.location.href = '/login.html';
+            return; // Detener la ejecución del resto del script
         }
-    });
 
-    // Evento para el nuevo botón de Cerrar Sesión
-    document.getElementById("logout-button").addEventListener("click", e => {
-        e.preventDefault();
-        logout();
-        cerrarSidebar(); // Cerrar el menú después de iniciar la acción de logout
-    });
+        // --- FIN VERIFICACIÓN DE AUTENTICACIÓN ---
 
-    // Asegurarse de cerrar el sidebar al seleccionar una opción
-    document.getElementById("menu-productos").addEventListener("click", e => {
-        e.preventDefault();
-        cargarVistaProductos();
-        cerrarSidebar(); // Cerrar al seleccionar
-    });
+        const sidebar = document.getElementById("sidebar");
+        const hamburgerMenu = document.getElementById("hamburger-menu");
+        const content = document.getElementById("contenido");
 
-    document.getElementById("menu-movimientos-inventario").addEventListener("click", e => {
-        e.preventDefault();
-        cargarVistaMovimientosInventario();
-        cerrarSidebar(); // Cerrar al seleccionar
-    });
+        // Evento para abrir/cerrar el menú hamburguesa
+        hamburgerMenu.addEventListener("click", () => {
+            sidebar.classList.toggle("active");
+            content.classList.toggle("shifted");
+            document.body.classList.toggle("sidebar-open");
+        });
 
-    document.getElementById("menu-ventas").addEventListener("click", e => {
-        e.preventDefault();
-        cargarVistaVentas();
-        cerrarSidebar(); // Cerrar al seleccionar
-    });
+        // Evento para cerrar el menú si se hace clic fuera de él (en el overlay del contenido)
+        content.addEventListener("click", (e) => {
+            if (sidebar.classList.contains("active") && !sidebar.contains(e.target) && e.target !== hamburgerMenu) {
+                cerrarSidebar();
+            }
+        });
 
-    document.getElementById("menu-categorias").addEventListener("click", e => {
-        e.preventDefault();
-        cargarVistaCategorias();
-        cerrarSidebar(); // Cerrar al seleccionar
-    });
+        // Evento para el nuevo botón de Cerrar Sesión
+        document.getElementById("logout-button").addEventListener("click", e => {
+            e.preventDefault();
+            logout();
+            cerrarSidebar(); // Cerrar el menú después de iniciar la acción de logout
+        });
 
-    document.getElementById("menu-cargos").addEventListener("click", e => {
-        e.preventDefault();
-        cargarVistaCargos();
-        cerrarSidebar(); // Cerrar al seleccionar
-    });
+        // Asegurarse de cerrar el sidebar al seleccionar una opción
+        document.getElementById("menu-productos").addEventListener("click", e => {
+            e.preventDefault();
+            cargarVistaProductos();
+            cerrarSidebar(); // Cerrar al seleccionar
+        });
 
-    document.getElementById("menu-clientes").addEventListener("click", e => {
-        e.preventDefault();
-        cargarVistaClientes();
-        cerrarSidebar(); // Cerrar al seleccionar
-    });
+        document.getElementById("menu-movimientos-inventario").addEventListener("click", e => {
+            e.preventDefault();
+            cargarVistaMovimientosInventario();
+            cerrarSidebar(); // Cerrar al seleccionar
+        });
 
-    document.getElementById("menu-empleados").addEventListener("click", e => {
-        e.preventDefault();
-        cargarVistaEmpleados();
-        cerrarSidebar(); // Cerrar al seleccionar
-    });
+        document.getElementById("menu-ventas").addEventListener("click", e => {
+            e.preventDefault();
+            cargarVistaVentas();
+            cerrarSidebar(); // Cerrar al seleccionar
+        });
 
-    document.getElementById("menu-proveedores").addEventListener("click", e => {
-        e.preventDefault();
-        cargarVistaProveedores();
-        cerrarSidebar(); // Cerrar al seleccionar
-    });
+        document.getElementById("menu-categorias").addEventListener("click", e => {
+            e.preventDefault();
+            cargarVistaCategorias();
+            cerrarSidebar(); // Cerrar al seleccionar
+        });
 
-    document.getElementById("menu-inicio").addEventListener("click", e => {
-        e.preventDefault();
+        document.getElementById("menu-cargos").addEventListener("click", e => {
+            e.preventDefault();
+            cargarVistaCargos();
+            cerrarSidebar(); // Cerrar al seleccionar
+        });
+
+        document.getElementById("menu-clientes").addEventListener("click", e => {
+            e.preventDefault();
+            cargarVistaClientes();
+            cerrarSidebar(); // Cerrar al seleccionar
+        });
+
+        document.getElementById("menu-empleados").addEventListener("click", e => {
+            e.preventDefault();
+            cargarVistaEmpleados();
+            cerrarSidebar(); // Cerrar al seleccionar
+        });
+
+        document.getElementById("menu-proveedores").addEventListener("click", e => {
+            e.preventDefault();
+            cargarVistaProveedores();
+            cerrarSidebar(); // Cerrar al seleccionar
+        });
+
+        document.getElementById("menu-inicio").addEventListener("click", e => {
+            e.preventDefault();
+            mostrarInicio();
+            cerrarSidebar(); // Cerrar al seleccionar
+        });
+
+        document.getElementById("menu-inventarios").addEventListener("click", e => {
+            e.preventDefault();
+            cargarVistaInventarios();
+            cerrarSidebar(); // Cerrar al seleccionar
+        });
+
+        // Cargar la vista de inicio al arrancar la aplicación (solo si hay un token)
         mostrarInicio();
-        cerrarSidebar(); // Cerrar al seleccionar
     });
-
-    // Cargar la vista de inicio al arrancar la aplicación (solo si hay un token)
-    mostrarInicio();
-});

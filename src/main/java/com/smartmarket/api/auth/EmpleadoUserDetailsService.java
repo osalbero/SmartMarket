@@ -29,6 +29,7 @@ public class EmpleadoUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("Autenticado a: " + username);
         return empleadoRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "Empleado no encontrado con email: " + username

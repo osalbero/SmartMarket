@@ -63,16 +63,25 @@ document.addEventListener('DOMContentLoaded', () => {
             // Parsear la respuesta JSON y extraer el token.
             const data = await response.json();
             const token = data.token || data.jwt || data.accessToken;
+            const username = data.username || email;
+            const nombre = data.nombre || "";
             if (!token) {
                 throw new Error("Token no recibido en la respuesta del servidor.");
             }
-            
+
             // Guardar el token de autenticación en el almacenamiento local.
             localStorage.setItem("token", token);
+            // También guardar el nombre completo si está disponible.
+            localStorage.setItem("nombre", nombre);
             console.log("Login exitoso. Token almacenado.");
 
-            // Redirigir al usuario a la página principal.
-            window.location.href = "index.html";
+            if (data.primerIngreso) {
+                // Si es el primer ingreso, redirigir al usuario a la página de cambio de contraseña.
+                window.location.href = "cambiar_contrasena.html";
+            } else {
+                // Redirigir al usuario a la página principal.
+                window.location.href = "index.html";
+            }
 
         } catch (error) {
             // Manejar y mostrar el error de forma amigable.

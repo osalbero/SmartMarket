@@ -21,7 +21,7 @@ body {
 .layout-container {
     display: flex;
     /* Esto reemplaza el display:flex del body anterior */
-    min-height: 100vh;
+    height: 100vh;
     /* Asegura que el contenedor ocupe al menos la altura de la ventana */
 }
 
@@ -31,12 +31,15 @@ h1 {
 
 /* ---------- SIDEBAR ---------- */
 .sidebar {
-    width: 220px;
+    width: 240px;
+    height: 100vh;
+    overflow-y: auto;
     background: #1f1f1f;
     color: white;
     padding: 20px;
     /* height: 100vh;  Ya no es necesario, lo gestiona layout-container */
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
     font-family: 'Segoe UI', sans-serif;
     flex-shrink: 0;
     /* Evita que el sidebar se encoja */
@@ -69,13 +72,13 @@ h1 {
 }
 
 .sidebar ul li {
-    margin: 10px 0;
+    margin: 0px 0;
 }
 
 .sidebar ul li a {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
+    padding: 12px 15px;
     color: #ccc;
     text-decoration: none;
     transition: background 0.3s, color 0.3s;
@@ -636,10 +639,7 @@ hr {
 }
 
 .resaltado {
-    background-color: #d1fae5;
-    color: #065f46;
-    padding: 2px 4px;
-    border-radius: 4px;
+    background-color: yellow;
     font-weight: bold;
 }
 
@@ -716,9 +716,8 @@ span[id^="nombreProductoPreview-"] {
 }
 
 .sales-module-container {
-    max-width: 800px;
+    max-width: 1000px;
     /* Reducir el ancho máximo del contenedor principal */
-    margin: 20px auto;
     padding: 25px;
     /* Reducir padding general */
     background-color: #fff;
@@ -756,7 +755,6 @@ span[id^="nombreProductoPreview-"] {
     background-color: #fcfcfc;
     position: relative;
     /* Usar Flexbox o Grid para compactar los campos internos */
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     /* Columnas flexibles */
     gap: 10px 20px;
@@ -913,4 +911,31 @@ span[id^="nombreProductoPreview-"] {
 
 .centrado {
   text-align: center;
+}
+
+.readonly {
+  background-color: #f5f5f5;
+  color: #555;
+  cursor: not-allowed;
+  border: 1px solid #ccc;
+}
+
+.inventario-container {
+  padding: 20px;
+  background-color: #fff;
+}
+
+.tabla-inventario {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-inventario th, .tabla-inventario td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+}
+
+.tabla-inventario th {
+  background-color: #f2f2f2;
 }

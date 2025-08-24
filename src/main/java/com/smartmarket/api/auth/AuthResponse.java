@@ -11,5 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthResponse {
     private String token; // Access modifier set to private
+    private boolean primerIngreso;
+    private String nombre;
+    private Long id;
 
 }

@@ -56,30 +56,25 @@ public class SecurityConfig {
             .headers(headers -> headers.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Endpoints públicos (sin token)
-                .requestMatchers(
-                    HttpMethod.OPTIONS,"/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/auth/validate").permitAll()
-                .requestMatchers(
-                    "/api/auth/**"
-                ).permitAll()
-                .requestMatchers("/api/empleados/**").permitAll()
+                // Permite explícitamente las peticiones OPTIONS para el preflight de CORS
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // Archivos estáticos en la raíz y subcarpetas
+                // Endpoints públicos (los más específicos primero)
+                .requestMatchers("/login.html", "cambiar_contrasena.html").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/validate").permitAll()
+
+                // Archivos estáticos
                 .requestMatchers(
-                    "/*.html", 
-                    "/*.css", 
-                    "/*.js", 
-                    "/favicon.ico", 
-                    "/",
-                    "/js/**", 
-                    "/css/**", 
-                    "/images/**", 
-                    "/modulos/**",
-                    "/vistas/**"
+                    "/*.html", "/*.css", "/*.js", "/favicon.ico", 
+                    "/", "/js/**", "/css/**", "/images/**", 
+                    "/modulos/**", "/vistas/**"
                 ).permitAll()
 
-                // Todo lo demás requiere autenticación
+                // Endpoints protegidos (requieren autenticación)
+                .requestMatchers(HttpMethod.POST, "/api/auth/cambiar-password").authenticated()
+                .requestMatchers(HttpMethod.GET, "index.html").authenticated()
+
+                // Cualquier otra petición requiere autenticación
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())

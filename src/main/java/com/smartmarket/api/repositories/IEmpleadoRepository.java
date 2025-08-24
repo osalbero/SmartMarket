@@ -3,6 +3,7 @@ package com.smartmarket.api.repositories;
 import com.smartmarket.api.models.Empleado;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.EntityGraph;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,10 +18,11 @@ public interface IEmpleadoRepository extends JpaRepository<Empleado, Integer> {
     boolean existsByEmail(String email);
 
     // Búsqueda general (nombre, cargo, teléfono o email)
+    @EntityGraph(attributePaths = { "cargo" })
     List<Empleado> findByNombreContainingIgnoreCaseOrCargoNombreContainingIgnoreCaseOrTelefonoContainingIgnoreCaseOrEmailContainingIgnoreCase(
-        String nombre,
-        String cargo,
-        String telefono,
-        String email
-    );
+            String nombre,
+            String cargo,
+            String telefono,
+            String email);
+
 }

@@ -17,7 +17,10 @@ public class EmpleadoUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Aquí podrías mapear roles, por ahora damos un rol fijo
+        if (empleado.getRole() == null) {
+            System.out.println("⚠️ El rol del empleado es null: " + empleado.getEmail());
+            return Collections.emptyList(); // o un rol por defecto si lo prefieres
+        }
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + empleado.getRole().name()));
     }
 
@@ -29,6 +32,10 @@ public class EmpleadoUserDetails implements UserDetails {
     @Override
     public String getUsername() {
         return empleado.getEmail(); // Autenticación por email
+    }
+
+    public Empleado getEmpleado() {
+        return empleado;
     }
 
     @Override
